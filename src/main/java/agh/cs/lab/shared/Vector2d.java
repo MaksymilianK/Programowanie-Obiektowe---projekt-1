@@ -20,12 +20,28 @@ public final class Vector2d {
         return new Vector2d(x, y);
     }
 
+    public boolean xPrecedes(Vector2d other) {
+        return x < other.x;
+    }
+
+    public boolean yPrecedes(Vector2d other) {
+        return y < other.y;
+    }
+
     public boolean precedes(Vector2d other) {
-        return x <= other.x && y <= other.y;
+        return xFollows(other) && yFollows(other);
+    }
+
+    public boolean xFollows(Vector2d other) {
+        return x > other.x;
+    }
+
+    public boolean yFollows(Vector2d other) {
+        return y > other.y;
     }
 
     public boolean follows(Vector2d other) {
-        return x >= other.x && y >= other.y;
+        return xFollows(other) && yFollows(other);
     }
 
     public Vector2d upperRight(Vector2d other) {

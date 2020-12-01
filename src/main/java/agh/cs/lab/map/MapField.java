@@ -1,41 +1,32 @@
 package agh.cs.lab.map;
 
-import agh.cs.lab.Element.Animal;
+import agh.cs.lab.element.animal.Animal;
+import agh.cs.lab.element.plant.Plant;
 import agh.cs.lab.shared.Vector2d;
 
 import java.util.*;
 
-public class MapField {
+class MapField {
 
     private final Vector2d position;
     private final List<Animal> animals = new LinkedList<>();
 
-    private boolean plant = false;
+    private Plant plant = null;
 
     public MapField(Vector2d position) {
         this.position = position;
     }
 
-    public Vector2d getPosition() {
-        return position;
-    }
-
-    public List<Animal> getAnimals() {
-        return Collections.unmodifiableList(animals);
-    }
-
-    public boolean animalAt() {
+    boolean animalAt() {
         return !animals.isEmpty();
-    }
-
-    public int countAnimals() {
-        return animals.size();
     }
 
     public void addAnimal(Animal newAnimal) {
         int index = 0;
         for (var animal : animals) {
-            if (animal.getEnergy() < newAnimal.getEnergy()) {
+            if (animal.getEnergy() > newAnimal.getEnergy()) {
+                index++;
+            } else {
                 break;
             }
         }
@@ -53,10 +44,11 @@ public class MapField {
 
         int counter = 0;
         for (var animal : animals) {
-            if (animal.getEnergy() < energy) {
+            if (animal.getEnergy() > energy) {
+                counter++;
+            } else {
                 break;
             }
-            counter++;
         }
         return counter;
     }
@@ -75,14 +67,13 @@ public class MapField {
         }
 
         var healthiest = new ArrayList<Animal>();
+        healthiest.add(animals.get(0));
 
         for (var animal : animals) {
-            if (healthiest.isEmpty()) {
-                healthiest.add(animal);
-            }
-
             if (animal.getEnergy() == healthiest.get(0).getEnergy()) {
                 healthiest.add(animal);
+            } else {
+                break;
             }
         }
         return healthiest;
@@ -93,7 +84,7 @@ public class MapField {
      * same energy, they are also returned.
      * Caller of this method must ensure that there are at least two animals on the field before invoking the method.
      *
-     * @returns list of animals ordered by their energies from the one with the highest to the one with the lowest
+     * @return list of animals ordered by their energies from the one with the highest to the one with the lowest
      * @throws MapException if there are less than two animals on the field
      */
     public List<Animal> getAtLeastTwoHealthiestAnimals() {
@@ -102,47 +93,45 @@ public class MapField {
         }
 
         var healthiest = new ArrayList<Animal>();
+        healthiest.add(animals.get(0));
+        healthiest.add(animals.get(1));
 
         for (var animal : animals) {
-            if (healthiest.size() < 2) {
+            if (animal.getEnergy() == healthiest.get(1).getEnergy()) {
                 healthiest.add(animal);
-            }
-
-            if (animal.getEnergy() == healthiest.get(healthiest.size() - 1).getEnergy()) {
-                healthiest.add(animal);
+            } else {
+                break;
             }
         }
         return healthiest;
     }
 
-    public boolean plantAt() {
+    boolean plantAt() {
+        return plant != null;
+    }
+
+    public void setPlant(Plant plant) {
+        if (this.plant != null) {
+            throw new MapException("Cannot set plant at the field " + position);
+        }
+        this.plant = plant;
+    }
+
+    public void removePlant() {
+        if (this.plant == null) {
+            throw new MapException("Cannot remove a plant from the field " + position);
+        }
+        this.plant = null;
+    }
+
+    public Plant getPlant() {
         return plant;
-    }
-
-    public boolean removePlant() {
-        if (plant) {
-            plant = false;
-            return true;
-        } else {
-            return false;
-        }
-    }
-
-    public boolean growPlant() {
-        if (plant) {
-            return false;
-        } else {
-            plant = true;
-            return true;
-        }
     }
 
     @Override
     public boolean equals(Object obj) {
         if (obj instanceof MapField) {
-            if (this.getPosition().equals(((MapField) obj).getPosition())) {
-                return true;
-            }
+            return this.position.equals(((MapField) obj).position);
         }
         return false;
     }

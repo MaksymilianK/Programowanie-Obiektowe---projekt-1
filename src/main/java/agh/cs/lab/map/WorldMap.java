@@ -1,6 +1,9 @@
 package agh.cs.lab.map;
 
-import agh.cs.lab.Element.Animal;
+import agh.cs.lab.element.animal.Animal;
+import agh.cs.lab.element.animal.AnimalObserver;
+import agh.cs.lab.element.plant.Plant;
+import agh.cs.lab.element.plant.PlantObserver;
 import agh.cs.lab.shared.MapDirection;
 import agh.cs.lab.shared.Vector2d;
 import agh.cs.lab.utils.Pair;
@@ -8,79 +11,37 @@ import agh.cs.lab.utils.Pair;
 import java.util.*;
 import java.util.stream.Collectors;
 
-public class WorldMap {
+public class WorldMap implements AnimalObserver, PlantObserver {
 
-    private final int width;
-    private final int height;
-    private final Map<Vector2d, MapField> fields = new HashMap<>();
-    private final Set<MapField> occupied = new HashSet<>();
-    private final Pair<Vector2d, Vector2d> jungleBorders;
+    public final Pair<Vector2d, Vector2d> jungleBorders;
+    public final Pair<Vector2d, Vector2d> mapBorders;
+    private final Map<Vector2d, MapField> fields;
+    private final Set<Vector2d> occupied = new HashSet<>();
 
-    public WorldMap(int width, int height, Pair<Vector2d, Vector2d> jungleBorders) {
-        this.width = width;
-        this.height = height;
+    private WorldMap(Pair<Vector2d, Vector2d> mapBorders, Pair<Vector2d, Vector2d> jungleBorders,
+                    Map<Vector2d, MapField> fields) {
         this.jungleBorders = jungleBorders;
-
-        for (int i = 0; i < width; i++) {
-            for (int j = 0; j < height; j++) {
-                var position = new Vector2d(i, j);
-                fields.put(position, new MapField(position));
-            }
-        }
+        this.mapBorders = mapBorders;
+        this.fields = fields;
     }
 
-    public Set<Animal> getAllAnimals() {
+    public Collection<Pair<Plant, List<Animal>>> getAnimalsToFeed() {
         return occupied.stream()
-                .flatMap(field -> field.getAnimals().stream())
+                .filter(pos -> fields.get(pos).plantAt())
+                .filter(pos -> fields.get(pos).animalAt())
+                .map(pos -> new Pair<>(fields.get(pos).getPlant(), fields.get(pos).getHealthiestAnimals()))
                 .collect(Collectors.toSet());
     }
 
-    public void placeAnimal(Animal animal) {
-        fields.get(animal.getPosition()).addAnimal(animal);
-        occupied.add(fields.get(animal.getPosition()));
-    }
-
-    public void removeAnimals(Set<Animal> animals) {
-        animals.forEach(animal -> {
-            var field = fields.get(animal.getPosition());
-            field.removeAnimal(animal);
-        });
-
-        removeUnoccupied();
-    }
-
-    public void moveAnimals(Set<Animal> animals) {
-        animals.forEach(animal -> {
-            var newPosition = getNewPosition(animal);
-            animal.setPosition(newPosition);
-            fields.get(newPosition).addAnimal(animal);
-            occupied.add(fields.get(newPosition));
-        });
-
-        removeUnoccupied();
-    }
-
-    public Set<List<Animal>> getAnimalsToFeed() {
+    public Collection<List<Animal>> getAnimalsToProcreate(int minEnergy) {
         return occupied.stream()
-                .filter(MapField::plantAt)
-                .filter(MapField::animalAt)
-                .map(MapField::getHealthiestAnimals)
+                .filter(pos -> fields.get(pos).countAnimalsWithEnergy(minEnergy) > 1)
+                .map(pos -> fields.get(pos).getAtLeastTwoHealthiestAnimals())
                 .collect(Collectors.toSet());
     }
 
-    public Set<List<Animal>> getAnimalsToProcreate(int minEnergy) {
-        return occupied.stream()
-                .filter(field -> field.countAnimalsWithEnergy(minEnergy) > 1)
-                .map(MapField::getAtLeastTwoHealthiestAnimals)
-                .collect(Collectors.toSet());
-    }
-
-    public void removePlants(Set<Vector2d> positions) {
-        positions.forEach(position -> fields.get(position).removePlant());
-    }
-
-    public Set<Vector2d> getEmptyFieldsInsideJungle() {
-        var fieldsInJungle = new HashSet<Vector2d>();
+    public List<Vector2d> getEmptyFieldsInsideJungle() {
+        var fieldsInJungle = new ArrayList<Vector2d>();
 
         for (int i = jungleBorders.first.x; i <= jungleBorders.second.x; i++) {
             for (int j = jungleBorders.first.y; j <= jungleBorders.second.y; j++) {
@@ -93,13 +54,13 @@ public class WorldMap {
         return fieldsInJungle;
     }
 
-    public Set<Vector2d> getEmptyFieldsOutsideJungle() {
+    public List<Vector2d> getEmptyFieldsOutsideJungle() {
         return fields.entrySet().stream()
                 .filter(entry -> !inJungle(entry.getKey()))
                 .filter(entry -> !entry.getValue().animalAt())
                 .filter(entry -> !entry.getValue().plantAt())
                 .map(Map.Entry::getKey)
-                .collect(Collectors.toSet());
+                .collect(Collectors.toList());
     }
 
     public List<Vector2d> getEmptyAdjacentFields(Vector2d centralPosition) {
@@ -114,30 +75,109 @@ public class WorldMap {
         return adjacentFields;
     }
 
-    private boolean inJungle(Vector2d position) {
-        return position.follows(jungleBorders.first) && position.precedes(jungleBorders.second);
-    }
+    public Vector2d getNewPosition(Vector2d currentPosition, MapDirection moveDirection) {
+        var newPosition = currentPosition.add(moveDirection.toUnitVector());
 
-    private Vector2d getNewPosition(Animal animal) {
-        var newPosition = animal.getPosition().add(animal.getOrientation().toUnitVector());
-
-        if (newPosition.x < 0) {
-            newPosition = newPosition.withX(width - 1);
+        if (newPosition.xPrecedes(mapBorders.first)) {
+            newPosition = newPosition.withX(mapBorders.second.x);
         }
-        if (newPosition.y < 0) {
-            newPosition = newPosition.withY(height - 1);
+        if (newPosition.xFollows(mapBorders.second)) {
+            newPosition = newPosition.withX(mapBorders.first.x);
         }
-        if (newPosition.x >= width) {
-            newPosition = newPosition.withX(0);
+        if (newPosition.yPrecedes(mapBorders.first)) {
+            newPosition = newPosition.withY(mapBorders.second.y);
         }
-        if (newPosition.y >= height) {
-            newPosition = newPosition.withY(0);
+        if (newPosition.yFollows(mapBorders.second)) {
+            newPosition = newPosition.withY(mapBorders.first.y);
         }
 
         return newPosition;
     }
 
-    private void removeUnoccupied() {
-        occupied.removeIf(field -> !field.animalAt());
+    public static WorldMap create(int width, int height, float jungleRatio) {
+        var mapBorders = new Pair<>(
+                new Vector2d(0, 0),
+                new Vector2d(width - 1, height - 1)
+        );
+
+        int jungleWidth = (int) (width * Math.sqrt(jungleRatio));
+        int jungleHeight = (int) (height * Math.sqrt(jungleRatio));
+
+        if (jungleWidth % 2 != width % 2) {
+            jungleWidth++;
+        }
+        if (jungleHeight % 2 != width % 2) {
+            jungleHeight++;
+        }
+
+        var jungleBorders = new Pair<>(
+                new Vector2d(width / 2 - jungleWidth / 2, height / 2 - jungleHeight / 2),
+                new Vector2d(width / 2 + jungleWidth / 2 - 1, height / 2 + jungleHeight / 2 - 1)
+        );
+
+        var fields = new HashMap<Vector2d, MapField>();
+
+        for (int x = 0; x < width; x++) {
+            for (int y = 0; y < height; y++) {
+                var position = new Vector2d(x, y);
+                fields.put(position, new MapField(position));
+            }
+        }
+
+        return new WorldMap(mapBorders, jungleBorders, fields);
+    }
+
+    @Override
+    public void onAnimalBorn(Animal animal) {
+        placeAnimal(animal);
+    }
+
+    @Override
+    public void onAnimalDead(Animal animal) {
+        removeAnimal(animal, animal.getPosition());
+    }
+
+    @Override
+    public void onAnimalTurned(Animal animal, MapDirection prevOrientation) {
+        //do nothing
+    }
+
+    @Override
+    public void onAnimalMoved(Animal animal, Vector2d oldPosition) {
+        removeAnimal(animal, oldPosition);
+        placeAnimal(animal);
+    }
+
+    @Override
+    public void onEnergyChanged(Animal animal, int oldEnergy) {
+        fields.get(animal.getPosition()).removeAnimal(animal);
+        fields.get(animal.getPosition()).addAnimal(animal);
+    }
+
+    @Override
+    public void onPlantSet(Plant plant) {
+        fields.get(plant.getPosition()).setPlant(plant);
+    }
+
+    @Override
+    public void onPlantEaten(Plant plant) {
+        fields.get(plant.getPosition()).removePlant();
+    }
+
+    private void placeAnimal(Animal animal) {
+        fields.get(animal.getPosition()).addAnimal(animal);
+        occupied.add(animal.getPosition());
+    }
+
+    private void removeAnimal(Animal animal, Vector2d position) {
+        fields.get(position).removeAnimal(animal);
+
+        if (!fields.get(animal.getPosition()).animalAt()) {
+            occupied.remove(animal.getPosition());
+        }
+    }
+
+    private boolean inJungle(Vector2d position) {
+        return position.follows(jungleBorders.first) && position.precedes(jungleBorders.second);
     }
 }
