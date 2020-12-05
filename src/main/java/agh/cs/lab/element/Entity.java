@@ -8,6 +8,8 @@ public abstract class Entity {
 
     private final int id;
 
+    private int lengthOfLife = 0;
+
     public Entity(int id) {
         this.id = id;
     }
@@ -16,6 +18,14 @@ public abstract class Entity {
 
     public int getId() {
         return id;
+    }
+
+    public int getLengthOfLife() {
+        return lengthOfLife;
+    }
+
+    public void addEpochToLife() {
+        lengthOfLife++;
     }
 
     @Override

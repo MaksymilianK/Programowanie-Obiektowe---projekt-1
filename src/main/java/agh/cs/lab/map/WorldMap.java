@@ -4,9 +4,9 @@ import agh.cs.lab.element.animal.Animal;
 import agh.cs.lab.element.animal.AnimalObserver;
 import agh.cs.lab.element.plant.Plant;
 import agh.cs.lab.element.plant.PlantObserver;
-import agh.cs.lab.shared.MapDirection;
+import agh.cs.lab.shared.Direction;
 import agh.cs.lab.shared.Vector2d;
-import agh.cs.lab.utils.Pair;
+import agh.cs.lab.shared.Pair;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -66,7 +66,7 @@ public class WorldMap implements AnimalObserver, PlantObserver {
     public List<Vector2d> getEmptyAdjacentFields(Vector2d centralPosition) {
         var adjacentFields = new ArrayList<Vector2d>();
 
-        for (var direction : MapDirection.values()) {
+        for (var direction : Direction.values()) {
             var newPosition = centralPosition.add(direction.toUnitVector());
             if (!fields.get(newPosition).animalAt()) {
                 adjacentFields.add(newPosition);
@@ -75,7 +75,7 @@ public class WorldMap implements AnimalObserver, PlantObserver {
         return adjacentFields;
     }
 
-    public Vector2d getNewPosition(Vector2d currentPosition, MapDirection moveDirection) {
+    public Vector2d getNewPosition(Vector2d currentPosition, Direction moveDirection) {
         var newPosition = currentPosition.add(moveDirection.toUnitVector());
 
         if (newPosition.xPrecedes(mapBorders.first)) {
@@ -92,6 +92,14 @@ public class WorldMap implements AnimalObserver, PlantObserver {
         }
 
         return newPosition;
+    }
+
+    public Pair<Vector2d, Vector2d> getMapBorders() {
+        return mapBorders;
+    }
+
+    public Pair<Vector2d, Vector2d> getJungleBorders() {
+        return jungleBorders;
     }
 
     public static WorldMap create(int width, int height, float jungleRatio) {
@@ -128,7 +136,12 @@ public class WorldMap implements AnimalObserver, PlantObserver {
     }
 
     @Override
-    public void onAnimalBorn(Animal animal) {
+    public void onAnimalCreated(Animal animal) {
+        placeAnimal(animal);
+    }
+
+    @Override
+    public void onAnimalBorn(Animal animal, Animal parent1, Animal parent2) {
         placeAnimal(animal);
     }
 
@@ -138,7 +151,7 @@ public class WorldMap implements AnimalObserver, PlantObserver {
     }
 
     @Override
-    public void onAnimalTurned(Animal animal, MapDirection prevOrientation) {
+    public void onAnimalTurned(Animal animal, Direction prevOrientation) {
         //do nothing
     }
 
@@ -155,7 +168,7 @@ public class WorldMap implements AnimalObserver, PlantObserver {
     }
 
     @Override
-    public void onPlantSet(Plant plant) {
+    public void onPlantCreated(Plant plant) {
         fields.get(plant.getPosition()).setPlant(plant);
     }
 

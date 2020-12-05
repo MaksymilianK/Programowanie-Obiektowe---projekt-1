@@ -15,7 +15,7 @@ public class Plant extends Entity {
         this.position = position;
         this.observers = observers;
 
-        observers.forEach(obs -> obs.onPlantSet(this));
+        observers.forEach(obs -> obs.onPlantCreated(this));
     }
 
     public void eat() {

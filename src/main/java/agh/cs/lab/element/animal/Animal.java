@@ -2,37 +2,34 @@ package agh.cs.lab.element.animal;
 
 import agh.cs.lab.element.Entity;
 import agh.cs.lab.shared.Vector2d;
-import agh.cs.lab.shared.MapDirection;
+import agh.cs.lab.shared.Direction;
 
-import java.util.List;
 import java.util.Set;
 
 public class Animal extends Entity {
 
-    private final List<Integer> genes;
+    private final Gene genes;
     private final Set<AnimalObserver> observers;
 
     private Vector2d position;
-    private MapDirection orientation;
+    private Direction orientation;
     private int energy;
 
-    Animal(int id, Set<AnimalObserver> observers, Vector2d position, List<Integer> genes, MapDirection orientation,
-           int energy) {
+    private Animal(int id, Set<AnimalObserver> observers, Vector2d position, Gene genes, Direction orientation,
+                   int energy) {
         super(id);
         this.genes = genes;
         this.observers = observers;
         this.position = position;
         this.orientation = orientation;
         this.energy = energy;
-
-        observers.forEach(obs -> obs.onAnimalBorn(this));
     }
 
     public void kill() {
         observers.forEach(obs -> obs.onAnimalDead(this));
     }
 
-    public void turn(MapDirection newOrientation) {
+    public void turn(Direction newOrientation) {
         var prevOrientation = orientation;
         orientation = newOrientation;
 
@@ -46,11 +43,11 @@ public class Animal extends Entity {
         observers.forEach(obs -> obs.onAnimalMoved(this, prevPosition));
     }
 
-    public List<Integer> getGenes() {
+    public Gene getGenes() {
         return genes;
     }
 
-    public MapDirection getOrientation() {
+    public Direction getOrientation() {
         return orientation;
     }
 
@@ -71,5 +68,19 @@ public class Animal extends Entity {
     @Override
     public Vector2d getPosition() {
         return position;
+    }
+
+    public static Animal create(int id, Set<AnimalObserver> observers, Vector2d position, Gene genes,
+                                Direction orientation, int energy) {
+        var animal = new Animal(id, observers, position, genes, orientation, energy);
+        observers.forEach(obs -> obs.onAnimalCreated(animal));
+        return animal;
+    }
+
+    public static Animal giveBirth(int id, Set<AnimalObserver> observers, Vector2d position, Gene genes,
+                                   Direction orientation, int energy, Animal parent1, Animal parent2) {
+        var animal = new Animal(id, observers, position, genes, orientation, energy);
+        observers.forEach(obs -> obs.onAnimalBorn(animal, parent1, parent2));
+        return animal;
     }
 }

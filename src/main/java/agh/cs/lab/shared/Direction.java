@@ -1,6 +1,6 @@
 package agh.cs.lab.shared;
 
-public enum MapDirection {
+public enum Direction {
 
     NORTH(new Vector2d(0, 1)),
     NORTH_EAST(new Vector2d(1, 1)),
@@ -13,11 +13,11 @@ public enum MapDirection {
 
     private final Vector2d unitVector;
 
-    MapDirection(Vector2d unitVector) {
+    Direction(Vector2d unitVector) {
         this.unitVector = unitVector;
     }
 
-    public MapDirection next() {
+    public Direction next() {
         return switch (this) {
             case NORTH -> NORTH_EAST;
             case NORTH_EAST -> EAST;
@@ -30,7 +30,7 @@ public enum MapDirection {
         };
     }
 
-    public MapDirection previous() {
+    public Direction previous() {
         return switch (this) {
             case NORTH -> NORTH_WEST;
             case NORTH_WEST -> WEST;

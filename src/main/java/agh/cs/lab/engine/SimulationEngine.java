@@ -2,9 +2,8 @@ package agh.cs.lab.engine;
 
 import agh.cs.lab.element.EntityFactoryFacade;
 import agh.cs.lab.element.animal.Animal;
-import agh.cs.lab.element.plant.Plant;
 import agh.cs.lab.map.WorldMap;
-import agh.cs.lab.shared.MapDirection;
+import agh.cs.lab.shared.Direction;
 import agh.cs.lab.shared.Vector2d;
 
 import java.util.HashSet;
@@ -14,14 +13,14 @@ import java.util.Set;
 
 public class SimulationEngine {
 
-    private final int plantEnergy = 50;
-    private final int procreationEnergy = 50;
-    private final Random rand = new Random();
+    private final SimulationSettings settings;
     private final WorldMap map;
-    private final Set<Animal> animals = new HashSet<>();
     private final EntityFactoryFacade entityFactory;
+    private final Random rand = new Random();
+    private final Set<Animal> animals = new HashSet<>();
 
-    public SimulationEngine(WorldMap map, EntityFactoryFacade entityFactory) {
+    public SimulationEngine(SimulationSettings settings, WorldMap map, EntityFactoryFacade entityFactory) {
+        this.settings = settings;
         this.map = map;
         this.entityFactory = entityFactory;
     }
@@ -44,13 +43,13 @@ public class SimulationEngine {
         map.getAnimalsToFeed().forEach(field -> {
             field.first.eat();
             field.second.forEach(animal -> {
-                animal.addEnergy(plantEnergy / animals.size());
+                animal.addEnergy(settings.getPlantEnergy() / animals.size());
             });
         });
     }
 
     public void procreate() {
-        map.getAnimalsToProcreate(procreationEnergy).forEach(animals -> {
+        map.getAnimalsToProcreate(settings.getProcreationEnergy()).forEach(animals -> {
             Animal parent1 = animals.get(0);
             Animal parent2 = animals.get(rand.nextInt(animals.size() - 1) + 1);
 
@@ -58,7 +57,7 @@ public class SimulationEngine {
             var adjacentFields = map.getEmptyAdjacentFields(parent1.getPosition());
 
             if (adjacentFields.isEmpty()) {
-                childPosition = parent1.getPosition().add(MapDirection.values()[rand.nextInt(8)].toUnitVector());
+                childPosition = parent1.getPosition().add(Direction.values()[rand.nextInt(8)].toUnitVector());
             } else {
                 childPosition = adjacentFields.get(rand.nextInt(adjacentFields.size()));
             }
@@ -84,7 +83,7 @@ public class SimulationEngine {
         animals.remove(animal);
     }
 
-    private MapDirection getNewOrientation(Animal animal) {
+    private Direction getNewOrientation(Animal animal) {
         int turn = rand.nextInt(8);
         var newOrientation = animal.getOrientation();
 

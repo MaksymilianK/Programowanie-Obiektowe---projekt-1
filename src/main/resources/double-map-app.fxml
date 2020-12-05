@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.layout.GridPane?>
+
+<GridPane xmlns:fx="http://javafx.com/fxml" fx:controller="agh.cs.lab.view.AppView">
+    <ScrollPane fx:id="mapContainer1">
+    </ScrollPane>
+
+    <ScrollPane fx:id="mapContainer2">
+    </ScrollPane>
+</GridPane>

@@ -4,5 +4,5 @@
 <?import javafx.scene.canvas.Canvas?>
 
 <VBox xmlns:fx="http://javafx.com/fxml" fx:controller="agh.cs.lab.view.WorldMapView">
-    <Canvas fx:id="map"/>
+    <Canvas fx:id="fields"/>
 </VBox>
