@@ -1,0 +1,8 @@
+{
+  "mapWidth": 12,
+  "mapHeight": 12,
+  "startEnergy": 50,
+  "moveEnergy": 2,
+  "plantEnergy": 15,
+  "jungleRatio": 0.2
+}

@@ -1,8 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.scene.layout.VBox?>
 <?import javafx.scene.canvas.Canvas?>
+<?import javafx.scene.layout.StackPane?>
 
-<VBox xmlns:fx="http://javafx.com/fxml" fx:controller="agh.cs.lab.view.WorldMapView">
+<StackPane fx:id="pane" xmlns:fx="http://javafx.com/fxml" fx:controller="agh.cs.lab.view.WorldMapView">
     <Canvas fx:id="fields"/>
-</VBox>
+    <Canvas fx:id="entities"/>
+</StackPane>

@@ -62,7 +62,7 @@ class MapField {
      * @throws MapException if there is no animal on the field
      */
     public List<Animal> getHealthiestAnimals() {
-        if (animals.isEmpty()) {
+        if (!animalAt()) {
             throw new MapException("There is no animals on the field");
         }
 

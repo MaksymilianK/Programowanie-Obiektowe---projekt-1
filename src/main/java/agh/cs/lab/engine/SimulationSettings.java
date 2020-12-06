@@ -1,5 +1,8 @@
 package agh.cs.lab.engine;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 public final class SimulationSettings {
 
     private final int mapWidth;
@@ -10,15 +13,17 @@ public final class SimulationSettings {
     private final float jungleRatio;
     private final int procreationEnergy;
 
-    public SimulationSettings(int mapWidth, int mapHeight, int startEnergy, int moveEnergy, int plantEnergy,
-                              float jungleRatio) {
+    @JsonCreator()
+    public SimulationSettings(@JsonProperty("mapWidth") int mapWidth, @JsonProperty("mapHeight") int mapHeight,
+                              @JsonProperty("startEnergy") int startEnergy, @JsonProperty("moveEnergy") int moveEnergy,
+                              @JsonProperty("plantEnergy") int plantEnergy, @JsonProperty("jungleRatio") float jungleRatio) {
         this.mapWidth = mapWidth;
         this.mapHeight = mapHeight;
         this.startEnergy = startEnergy;
         this.moveEnergy = moveEnergy;
         this.plantEnergy = plantEnergy;
         this.jungleRatio = jungleRatio;
-        this.procreationEnergy = (int) Math.ceil(startEnergy / 2);
+        this.procreationEnergy = startEnergy / 2;
     }
 
     public int getMapWidth() {

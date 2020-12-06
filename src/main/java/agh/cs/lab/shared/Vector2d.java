@@ -29,7 +29,7 @@ public final class Vector2d {
     }
 
     public boolean precedes(Vector2d other) {
-        return xFollows(other) && yFollows(other);
+        return xPrecedes(other) && yPrecedes(other);
     }
 
     public boolean xFollows(Vector2d other) {

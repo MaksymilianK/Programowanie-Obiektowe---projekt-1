@@ -1,17 +1,23 @@
 package agh.cs.lab.element.animal;
 
+import agh.cs.lab.shared.Rand;
+
 import java.util.*;
 
 public class GenesFactory {
 
     public static final int GENES_LENGTH = 32;
 
-    private final Random rand = new Random();
+    private final Rand rand;
+
+    public GenesFactory(Rand rand) {
+        this.rand = rand;
+    }
 
     public Gene create() {
         var genes = new ArrayList<Integer>(GENES_LENGTH);
         for (int i = 0; i < GENES_LENGTH; i++) {
-            genes.add(rand.nextInt(8));
+            genes.add(rand.randInt(8));
         }
 
         fixGenes(genes);
@@ -19,16 +25,16 @@ public class GenesFactory {
     }
 
     public Gene create(Gene parent1, Gene parent2) {
-        int break1 = rand.nextInt(GENES_LENGTH - 1) + 1;
+        int break1 = rand.randInt(1, GENES_LENGTH - 1);
 
         int break2;
         do {
-            break2 = rand.nextInt(GENES_LENGTH - 1) + 1;
+            break2 = rand.randInt(break1 + 1, GENES_LENGTH);
         } while (break2 == break1);
 
-        var dominantParent = rand.nextInt(2) == 0 ? parent1 : parent2;
+        var dominantParent = rand.randInt(2) == 0 ? parent1 : parent2;
         var weakerParent = parent1 == dominantParent ? parent2 : parent1;
-        int weakerParentSequence = rand.nextInt(3);
+        int weakerParentSequence = rand.randInt(3);
 
         var childGenes = new ArrayList<Integer>(GENES_LENGTH);
 
@@ -74,7 +80,7 @@ public class GenesFactory {
             if (genesCounter[i] == 0) {
                 int geneToChange;
                 do {
-                    geneToChange = rand.nextInt(GENES_LENGTH);
+                    geneToChange = rand.randInt(GENES_LENGTH);
                 } while (genesCounter[genes.get(geneToChange)] < 2);
 
                 genes.set(geneToChange, i);

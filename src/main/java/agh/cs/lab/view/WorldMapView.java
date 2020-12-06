@@ -1,25 +1,40 @@
 package agh.cs.lab.view;
 
 import agh.cs.lab.element.animal.Animal;
-import agh.cs.lab.element.animal.AnimalObserver;
 import agh.cs.lab.element.plant.Plant;
-import agh.cs.lab.element.plant.PlantObserver;
+import agh.cs.lab.map.WorldMap;
 import agh.cs.lab.shared.Direction;
 import agh.cs.lab.shared.Pair;
 import agh.cs.lab.shared.Vector2d;
 import javafx.fxml.FXML;
+import javafx.scene.Parent;
 import javafx.scene.canvas.Canvas;
+import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.image.Image;
+import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
 
-import java.util.Random;
+import java.util.Set;
 
-public class WorldMapView implements AnimalObserver, PlantObserver {
+public class WorldMapView {
+
+    @FXML
+    private StackPane pane;
 
     @FXML
     private Canvas fields;
 
-    public Canvas draw(Pair<Vector2d, Vector2d> mapBorders, Pair<Vector2d, Vector2d> jungleBorders,
+    @FXML
+    private Canvas entities;
+
+    private GraphicsContext fieldsCtx;
+    private GraphicsContext entitiesCtx;
+    private double fieldSide;
+
+    private Image[] animalImages = new Image[8];
+    private Image plantImage;
+
+    public Parent draw(Pair<Vector2d, Vector2d> mapBorders, Pair<Vector2d, Vector2d> jungleBorders,
                        double viewWidth, double viewHeight) {
         int mapWidth = mapBorders.second.x + 1;
         int mapHeight = mapBorders.second.y + 1;
@@ -27,7 +42,7 @@ public class WorldMapView implements AnimalObserver, PlantObserver {
         double widthRatio = viewWidth / mapWidth;
         double heightRatio = viewHeight / mapHeight;
 
-        double fieldSide = Math.max(widthRatio, heightRatio);
+        fieldSide = Math.min(widthRatio, heightRatio);
         if (fieldSide < 25) {
             fieldSide = 25;
         }
@@ -35,10 +50,16 @@ public class WorldMapView implements AnimalObserver, PlantObserver {
         fields.setWidth(fieldSide*mapWidth);
         fields.setHeight(fieldSide*mapHeight);
 
-        var fieldsCtx = fields.getGraphicsContext2D();
+        entities.setWidth(fieldSide*mapWidth);
+        entities.setHeight(fieldSide*mapHeight);
 
-        var aimage = new Image("./animal.png");
-        var pimage = new Image("./plant.png");
+        fieldsCtx = fields.getGraphicsContext2D();
+        entitiesCtx = entities.getGraphicsContext2D();
+
+        for (int i = 0; i < 8; i++) {
+            animalImages[i] = new Image("./animal" + i + ".png");
+        }
+        plantImage = new Image("./plant.png");
 
         fieldsCtx.setFill(Color.GREEN);
         fieldsCtx.setStroke(Color.BLACK);
@@ -56,58 +77,40 @@ public class WorldMapView implements AnimalObserver, PlantObserver {
                     fieldsCtx.strokeRect(i*fieldSide, j*fieldSide, fieldSide, fieldSide);
                 }
 
-                if ((new Random()).nextInt(2) == 0) {
+                /*if ((new Random()).nextInt(2) == 0) {
                     fieldsCtx.drawImage(aimage, i * fieldSide + fieldSide * 0.15, j * fieldSide + fieldSide * 0.15,
                             fieldSide * 0.7, fieldSide * 0.7);
                 } else {
                     fieldsCtx.drawImage(pimage, i * fieldSide + fieldSide * 0.15, j * fieldSide + fieldSide * 0.15,
                             fieldSide * 0.7, fieldSide * 0.7);
-                }
+                }*/
             }
         }
 
-        System.out.println((jungleBorders.second.x - jungleBorders.first.x + 1)*(jungleBorders.second.y - jungleBorders.first.y + 1) / (double) (mapWidth * mapHeight));
-
-        return fields;
+        return pane;
     }
 
-    @Override
-    public void onAnimalCreated(Animal animal) {
-
+    public void clearEntities() {
+        entitiesCtx.clearRect(0, 0, entities.getWidth(), entities.getHeight());
     }
 
-    @Override
-    public void onAnimalBorn(Animal animal, Animal parent1, Animal parent2) {
-
+    public void drawAnimals(Set<Animal> animals) {
+        animals.forEach(this::drawAnimal);
     }
 
-    @Override
-    public void onAnimalDead(Animal animal) {
-
+    public void drawPlants(Set<Plant> plants) {
+        plants.forEach(this::drawPlant);
     }
 
-    @Override
-    public void onAnimalTurned(Animal animal, Direction prevOrientation) {
-
+    private void drawAnimal(Animal animal) {
+        entitiesCtx.drawImage(animalImages[animal.getOrientation().ordinal()],
+                animal.getPosition().x * fieldSide,
+                entities.getHeight() - (animal.getPosition().y + 1) * fieldSide, fieldSide, fieldSide);
     }
 
-    @Override
-    public void onAnimalMoved(Animal animal, Vector2d prevPosition) {
-
-    }
-
-    @Override
-    public void onEnergyChanged(Animal animal, int prevEnergy) {
-
-    }
-
-    @Override
-    public void onPlantCreated(Plant plant) {
-
-    }
-
-    @Override
-    public void onPlantEaten(Plant plant) {
-
+    private void drawPlant(Plant plant) {
+        entitiesCtx.drawImage(plantImage,
+                plant.getPosition().x * fieldSide,
+                entities.getHeight() - (plant.getPosition().y + 1) * fieldSide, fieldSide, fieldSide);
     }
 }

@@ -20,7 +20,7 @@ public class EntityFactoryFacade {
         return animalFactory.create(position);
     }
 
-    public Animal createAnimal(Vector2d position, Animal parent1, Animal parent2) {
+    public Animal giveBirthToAnimal(Vector2d position, Animal parent1, Animal parent2) {
         return animalFactory.giveBirth(position, parent1, parent2);
     }
 

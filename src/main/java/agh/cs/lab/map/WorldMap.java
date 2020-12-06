@@ -16,7 +16,8 @@ public class WorldMap implements AnimalObserver, PlantObserver {
     public final Pair<Vector2d, Vector2d> jungleBorders;
     public final Pair<Vector2d, Vector2d> mapBorders;
     private final Map<Vector2d, MapField> fields;
-    private final Set<Vector2d> occupied = new HashSet<>();
+    private final Set<MapField> withAnimals = new HashSet<>();
+    private final Set<MapField> withPlants = new HashSet<>();
 
     private WorldMap(Pair<Vector2d, Vector2d> mapBorders, Pair<Vector2d, Vector2d> jungleBorders,
                     Map<Vector2d, MapField> fields) {
@@ -26,17 +27,16 @@ public class WorldMap implements AnimalObserver, PlantObserver {
     }
 
     public Collection<Pair<Plant, List<Animal>>> getAnimalsToFeed() {
-        return occupied.stream()
-                .filter(pos -> fields.get(pos).plantAt())
-                .filter(pos -> fields.get(pos).animalAt())
-                .map(pos -> new Pair<>(fields.get(pos).getPlant(), fields.get(pos).getHealthiestAnimals()))
+        return withAnimals.stream()
+                .filter(MapField::plantAt)
+                .map(field -> new Pair<>(field.getPlant(), field.getHealthiestAnimals()))
                 .collect(Collectors.toSet());
     }
 
     public Collection<List<Animal>> getAnimalsToProcreate(int minEnergy) {
-        return occupied.stream()
-                .filter(pos -> fields.get(pos).countAnimalsWithEnergy(minEnergy) > 1)
-                .map(pos -> fields.get(pos).getAtLeastTwoHealthiestAnimals())
+        return withAnimals.stream()
+                .filter(field -> field.countAnimalsWithEnergy(minEnergy) > 1)
+                .map(MapField::getAtLeastTwoHealthiestAnimals)
                 .collect(Collectors.toSet());
     }
 
@@ -67,7 +67,7 @@ public class WorldMap implements AnimalObserver, PlantObserver {
         var adjacentFields = new ArrayList<Vector2d>();
 
         for (var direction : Direction.values()) {
-            var newPosition = centralPosition.add(direction.toUnitVector());
+            var newPosition = getNewPosition(centralPosition, direction);
             if (!fields.get(newPosition).animalAt()) {
                 adjacentFields.add(newPosition);
             }
@@ -100,39 +100,6 @@ public class WorldMap implements AnimalObserver, PlantObserver {
 
     public Pair<Vector2d, Vector2d> getJungleBorders() {
         return jungleBorders;
-    }
-
-    public static WorldMap create(int width, int height, float jungleRatio) {
-        var mapBorders = new Pair<>(
-                new Vector2d(0, 0),
-                new Vector2d(width - 1, height - 1)
-        );
-
-        int jungleWidth = (int) (width * Math.sqrt(jungleRatio));
-        int jungleHeight = (int) (height * Math.sqrt(jungleRatio));
-
-        if (jungleWidth % 2 != width % 2) {
-            jungleWidth++;
-        }
-        if (jungleHeight % 2 != width % 2) {
-            jungleHeight++;
-        }
-
-        var jungleBorders = new Pair<>(
-                new Vector2d(width / 2 - jungleWidth / 2, height / 2 - jungleHeight / 2),
-                new Vector2d(width / 2 + jungleWidth / 2 - 1, height / 2 + jungleHeight / 2 - 1)
-        );
-
-        var fields = new HashMap<Vector2d, MapField>();
-
-        for (int x = 0; x < width; x++) {
-            for (int y = 0; y < height; y++) {
-                var position = new Vector2d(x, y);
-                fields.put(position, new MapField(position));
-            }
-        }
-
-        return new WorldMap(mapBorders, jungleBorders, fields);
     }
 
     @Override
@@ -170,23 +137,73 @@ public class WorldMap implements AnimalObserver, PlantObserver {
     @Override
     public void onPlantCreated(Plant plant) {
         fields.get(plant.getPosition()).setPlant(plant);
+
+        withPlants.add(fields.get(plant.getPosition()));
     }
 
     @Override
     public void onPlantEaten(Plant plant) {
         fields.get(plant.getPosition()).removePlant();
+
+        withPlants.remove(fields.get(plant.getPosition()));
+    }
+
+    public Set<Animal> getAnimalsWithTopEnergy() {
+        return withAnimals.stream()
+                .map(field -> field.getHealthiestAnimals().get(0))
+                .collect(Collectors.toSet());
+    }
+
+    public Set<Plant> getPlants() {
+        return withPlants.stream()
+                .map(MapField::getPlant)
+                .collect(Collectors.toSet());
+    }
+
+
+    public static WorldMap create(int width, int height, float jungleRatio) {
+        var mapBorders = new Pair<>(
+                new Vector2d(0, 0),
+                new Vector2d(width - 1, height - 1)
+        );
+
+        int jungleWidth = (int) (width * Math.sqrt(jungleRatio));
+        int jungleHeight = (int) (height * Math.sqrt(jungleRatio));
+
+        if (jungleWidth % 2 != width % 2) {
+            jungleWidth++;
+        }
+        if (jungleHeight % 2 != height % 2) {
+            jungleHeight++;
+        }
+
+        var jungleBorders = new Pair<>(
+                new Vector2d(width / 2 - jungleWidth / 2, height / 2 - jungleHeight / 2),
+                new Vector2d(width / 2 - jungleWidth / 2 + jungleWidth - 1, height / 2 - jungleHeight / 2 + jungleHeight - 1)
+        );
+
+        var fields = new HashMap<Vector2d, MapField>();
+
+        for (int x = 0; x < width; x++) {
+            for (int y = 0; y < height; y++) {
+                var position = new Vector2d(x, y);
+                fields.put(position, new MapField(position));
+            }
+        }
+
+        return new WorldMap(mapBorders, jungleBorders, fields);
     }
 
     private void placeAnimal(Animal animal) {
         fields.get(animal.getPosition()).addAnimal(animal);
-        occupied.add(animal.getPosition());
+        withAnimals.add(fields.get(animal.getPosition()));
     }
 
     private void removeAnimal(Animal animal, Vector2d position) {
         fields.get(position).removeAnimal(animal);
 
-        if (!fields.get(animal.getPosition()).animalAt()) {
-            occupied.remove(animal.getPosition());
+        if (!fields.get(position).animalAt()) {
+            withAnimals.remove(fields.get(position));
         }
     }
 
