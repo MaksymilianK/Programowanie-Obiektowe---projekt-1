@@ -1,7 +1,7 @@
 package agh.cs.lab.element.plant;
 
 import agh.cs.lab.element.EntityFactory;
-import agh.cs.lab.engine.SimulationStatistics;
+import agh.cs.lab.statistics.SimulationStatistics;
 import agh.cs.lab.map.WorldMap;
 import agh.cs.lab.shared.Vector2d;
 

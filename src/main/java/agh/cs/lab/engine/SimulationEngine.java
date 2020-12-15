@@ -8,6 +8,7 @@ import agh.cs.lab.map.WorldMap;
 import agh.cs.lab.shared.Direction;
 import agh.cs.lab.shared.Rand;
 import agh.cs.lab.shared.Vector2d;
+import agh.cs.lab.statistics.AnimalTracker;
 
 import java.util.HashSet;
 import java.util.List;
@@ -89,6 +90,8 @@ public class SimulationEngine {
     }
 
     public void feedAnimals() {
+        var fedAnimals = new HashSet<Animal>();
+
         map.getAnimalsToFeed().forEach(field -> {
             field.first.eat();
             field.second.forEach(animal -> {
@@ -120,17 +123,29 @@ public class SimulationEngine {
         });
     }
 
-    public void addPlants() {
-        trySetPlant(map.getEmptyFieldsInsideJungle());
-        trySetPlant(map.getEmptyFieldsOutsideJungle());
+    public Set<Plant> addPlants() {
+        var newPlants = new HashSet<Plant>();
+        newPlants.add(trySetPlant(map.getEmptyFieldsInsideJungle()));
+        newPlants.add(trySetPlant(map.getEmptyFieldsOutsideJungle()));
+        return newPlants;
     }
 
-    private void trySetPlant(List<Vector2d> fields) {
-        if (!fields.isEmpty()) {
+    public Set<Animal> getAnimalsWithTopEnergy() {
+        return map.getAnimalsWithTopEnergy();
+    }
+
+    public Set<Plant> getPlants() {
+        return map.getPlants();
+    }
+
+    private Plant trySetPlant(List<Vector2d> fields) {
+        if (fields.isEmpty()) {
+            return null;
+        } else {
             int index = rand.randInt(fields.size());
             var plant = entityFactory.createPlant(fields.get(index));
-
             plants.add(plant);
+            return plant;
         }
     }
 

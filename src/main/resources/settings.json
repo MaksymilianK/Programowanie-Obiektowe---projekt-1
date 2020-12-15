@@ -3,6 +3,6 @@
   "mapHeight": 12,
   "startEnergy": 50,
   "moveEnergy": 2,
-  "plantEnergy": 15,
+  "plantEnergy": 20,
   "jungleRatio": 0.2
 }

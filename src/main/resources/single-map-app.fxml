@@ -1,9 +1,31 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.Separator?>
 <?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.control.ScrollPane?>
 
-<GridPane xmlns:fx="http://javafx.com/fxml" fx:controller="agh.cs.lab.view.AppView">
-    <ScrollPane fx:id="mapContainer">
-    </ScrollPane>
+<GridPane xmlns:fx="http://javafx.com/fxml" fx:id="app" fx:controller="agh.cs.lab.view.SingleMapAppView" >
+    <children>
+        <ScrollPane GridPane.rowIndex="0" GridPane.columnIndex="0" GridPane.rowSpan="3" GridPane.columnSpan="1">
+            <fx:include source="world-map.fxml" fx:id="map"/>
+        </ScrollPane>
+        <fx:include source="simulation-control.fxml" fx:id="simulationControl"
+                GridPane.rowIndex="0" GridPane.columnIndex="1"/>
+
+        <Separator/>
+
+        <fx:include source="v-simulation-statistics.fxml" fx:id="statistics"
+                GridPane.rowIndex="1" GridPane.columnIndex="1"/>
+
+        <Separator/>
+
+        <fx:include source="selected-animal-details.fxml" fx:id="animalDetails"
+                GridPane.rowIndex="2" GridPane.columnIndex="1"/>
+    </children>
+
+    <columnConstraints>
+        <ColumnConstraints percentWidth="70"/>
+        <ColumnConstraints percentWidth="30"/>
+    </columnConstraints>
 </GridPane>

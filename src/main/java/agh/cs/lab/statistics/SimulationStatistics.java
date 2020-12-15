@@ -1,4 +1,4 @@
-package agh.cs.lab.engine;
+package agh.cs.lab.statistics;
 
 import agh.cs.lab.element.animal.Animal;
 import agh.cs.lab.element.animal.AnimalObserver;
@@ -80,15 +80,15 @@ public class SimulationStatistics implements AnimalObserver, PlantObserver {
         return genesCounter.getMostCommonGenes();
     }
 
-    public float getAverageLivingAnimalsEnergy() {
+    public float getAverageEnergy() {
         return (float) livingAnimalEnergy / (float) livingAnimals;
     }
 
-    public float getAverageDeadAnimalsLengthOfLife() {
+    public float getAverageLifeTime() {
         return (float) deadAnimalsEpochLived / (float) deadAnimals;
     }
 
-    public float getAverageLivingAnimalsChildren() {
+    public float getAverageChildren() {
         return childrenCounter.getAverageChildren();
     }
 

@@ -2,8 +2,6 @@ package agh.cs.lab.view;
 
 import agh.cs.lab.element.animal.Animal;
 import agh.cs.lab.element.plant.Plant;
-import agh.cs.lab.map.WorldMap;
-import agh.cs.lab.shared.Direction;
 import agh.cs.lab.shared.Pair;
 import agh.cs.lab.shared.Vector2d;
 import javafx.fxml.FXML;
@@ -16,7 +14,7 @@ import javafx.scene.paint.Color;
 
 import java.util.Set;
 
-public class WorldMapView {
+public class WorldMapView implements View {
 
     @FXML
     private StackPane pane;
@@ -30,9 +28,16 @@ public class WorldMapView {
     private GraphicsContext fieldsCtx;
     private GraphicsContext entitiesCtx;
     private double fieldSide;
+    private Set<Vector2d> animalsPositions;
+    private Set<Vector2d> plantsPositions;
 
     private Image[] animalImages = new Image[8];
     private Image plantImage;
+
+    public void drawAnimals(Set<Animal> animals) {
+        animalsPositions.forEach(this::clearField);
+        animals.forEach(this::drawAnimal);
+    }
 
     public Parent draw(Pair<Vector2d, Vector2d> mapBorders, Pair<Vector2d, Vector2d> jungleBorders,
                        double viewWidth, double viewHeight) {
@@ -94,10 +99,6 @@ public class WorldMapView {
         entitiesCtx.clearRect(0, 0, entities.getWidth(), entities.getHeight());
     }
 
-    public void drawAnimals(Set<Animal> animals) {
-        animals.forEach(this::drawAnimal);
-    }
-
     public void drawPlants(Set<Plant> plants) {
         plants.forEach(this::drawPlant);
     }
@@ -112,5 +113,19 @@ public class WorldMapView {
         entitiesCtx.drawImage(plantImage,
                 plant.getPosition().x * fieldSide,
                 entities.getHeight() - (plant.getPosition().y + 1) * fieldSide, fieldSide, fieldSide);
+    }
+
+    private void clearField(Vector2d position) {
+        entitiesCtx.clearRect(
+                position.x * fieldSide,
+                entities.getHeight() - (position.y + 1) * fieldSide,
+                fieldSide,
+                fieldSide
+        );
+    }
+
+    @Override
+    public void reset() {
+
     }
 }

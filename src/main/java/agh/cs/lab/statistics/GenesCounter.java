@@ -1,4 +1,4 @@
-package agh.cs.lab.engine;
+package agh.cs.lab.statistics;
 
 import agh.cs.lab.element.animal.Gene;
 
