@@ -53,6 +53,14 @@ class MapField {
         return counter;
     }
 
+    public Optional<Animal> getHealthiestAnimal() {
+        if (animalAt()) {
+            return Optional.of(animals.get(0));
+        } else {
+            return Optional.empty();
+        }
+    }
+
     /**
      * Gets animals with the highest energy. This method returns at least one animal. If there is more animals with the
      * same energy, they are also returned.

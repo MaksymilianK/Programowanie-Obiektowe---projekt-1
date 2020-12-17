@@ -6,17 +6,12 @@ import javafx.scene.Parent;
 import javafx.scene.control.Button;
 import javafx.scene.control.TextField;
 
-import java.util.HashSet;
-import java.util.Set;
 import java.util.function.Consumer;
 
-public class MenuView extends PrimaryView {
-
-    private final Set<Consumer<SimulationSettings>> onSingleSimulationChoice = new HashSet<>();
-    private final Set<Consumer<SimulationSettings>> onDoubleSimulationChoice = new HashSet<>();
+public class MenuController extends PrimaryController {
 
     @FXML
-    private Parent form;
+    private Parent menu;
 
     @FXML
     private TextField mapWidth;
@@ -49,15 +44,11 @@ public class MenuView extends PrimaryView {
     }
 
     public void onSingleSimulationChoice(Consumer<SimulationSettings> onChoice) {
-        onSingleSimulationChoice.add(onChoice);
+        singleSimulationButton.setOnAction(event -> onChoice.accept(getNewSettings()));
     }
 
     public void onDoubleSimulationChoice(Consumer<SimulationSettings> onChoice) {
-        onDoubleSimulationChoice.add(onChoice);
-    }
-
-    public Parent getForm() {
-        return form;
+        doubleSimulationButton.setOnAction(event -> onChoice.accept(getNewSettings()));
     }
 
     @Override
@@ -70,25 +61,21 @@ public class MenuView extends PrimaryView {
         jungleRatio.setText(Float.toString(defaultSettings.getJungleRatio()));
     }
 
-    @FXML
-    private void initialize() {
-        setScene(form);
-
-        singleSimulationButton.setOnAction(event ->
-                onSingleSimulationChoice.forEach(callback -> callback.accept(getNewSettings())));
-
-        doubleSimulationButton.setOnAction(event ->
-                onDoubleSimulationChoice.forEach(callback -> callback.accept(getNewSettings())));
+    @Override
+    public void init() {
+        reset();
+        setScene(menu);
     }
 
     private SimulationSettings getNewSettings() {
-        return new SimulationSettings(
-                Integer.parseInt(mapWidth.getText()),
-                Integer.parseInt(mapHeight.getText()),
-                Integer.parseInt(startEnergy.getText()),
-                Integer.parseInt(moveEnergy.getText()),
-                Integer.parseInt(plantEnergy.getText()),
-                Float.parseFloat(jungleRatio.getText())
-        );
+         return new SimulationSettings(
+                    Integer.parseInt(mapWidth.getText()),
+                    Integer.parseInt(mapHeight.getText()),
+                    Integer.parseInt(startEnergy.getText()),
+                    Integer.parseInt(moveEnergy.getText()),
+                    Integer.parseInt(plantEnergy.getText()),
+                    Float.parseFloat(jungleRatio.getText())
+            );
+        }
     }
 }

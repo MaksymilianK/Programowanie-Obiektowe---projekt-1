@@ -5,7 +5,7 @@
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.Button?>
 
-<GridPane xmlns:fx="http://javafx.com/fxml" fx:controller="agh.cs.lab.view.MenuView" fx:id="form"
+<GridPane xmlns:fx="http://javafx.com/fxml" fx:controller="agh.cs.lab.view.MenuController" fx:id="menu"
           alignment="CENTER" vgap="20" hgap="30">
     <Label text="Szerokość mapy" GridPane.rowIndex="0" GridPane.columnIndex="0"/>
     <TextField fx:id="mapWidth" GridPane.rowIndex="0" GridPane.columnIndex="1"/>

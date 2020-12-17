@@ -1,17 +1,20 @@
 package agh.cs.lab.runner;
 
 import agh.cs.lab.element.EntityFactoryFacade;
+import agh.cs.lab.element.animal.Animal;
 import agh.cs.lab.element.animal.AnimalFactory;
 import agh.cs.lab.element.animal.GenesFactory;
 import agh.cs.lab.element.plant.PlantFactory;
 import agh.cs.lab.engine.SimulationEngine;
 import agh.cs.lab.engine.SimulationSettings;
-import agh.cs.lab.statistics.SimulationStatistics;
+import agh.cs.lab.shared.Vector2d;
+import agh.cs.lab.tracker.AnimalTracker;
+import agh.cs.lab.statistics.SimulationStatisticsManager;
 import agh.cs.lab.map.WorldMap;
 import agh.cs.lab.shared.Rand;
-import agh.cs.lab.view.AnimalDetailsView;
-import agh.cs.lab.view.SimulationStatisticsView;
-import agh.cs.lab.view.WorldMapView;
+import agh.cs.lab.view.AnimalDetailsController;
+import agh.cs.lab.view.SimulationStatisticsController;
+import agh.cs.lab.view.MapController;
 import javafx.animation.Animation;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
@@ -24,18 +27,20 @@ public class SimulationRunner {
     public static final double DEFAULT_SPEED = 50.0d * SPEED_CONST;
     public static final double MIN_SPEED = 1.0d * SPEED_CONST;
     public static final double MAX_SPEED = 100.0d * SPEED_CONST;
+    public static final int START_ANIMALS_NUMBER = 5;
 
-    private final WorldMapView mapView;
-    private final SimulationStatisticsView statisticsView;
-    private final AnimalDetailsView animalDetailsView;
+    private final MapController mapView;
+    private final SimulationStatisticsController statisticsView;
+    private final AnimalDetailsController animalDetailsView;
     private final SimulationEngine engine;
-    private final SimulationStatistics statistics;
+    private final SimulationStatisticsManager statistics;
 
     private Timeline animation;
+    private AnimalTracker animalTracker;
 
-    private SimulationRunner(WorldMapView mapView, SimulationStatisticsView statisticsView,
-                             AnimalDetailsView animalDetailsView, SimulationEngine engine,
-                             SimulationStatistics statistics) {
+    private SimulationRunner(MapController mapView, SimulationStatisticsController statisticsView,
+                             AnimalDetailsController animalDetailsView, SimulationEngine engine,
+                             SimulationStatisticsManager statistics) {
         this.mapView = mapView;
         this.statisticsView = statisticsView;
         this.animalDetailsView = animalDetailsView;
@@ -58,69 +63,127 @@ public class SimulationRunner {
     }
 
     public void setSpeed(double speed) {
-        if (animation.getStatus().equals(Animation.Status.RUNNING)) {
+        if (animation != null && animation.getStatus().equals(Animation.Status.RUNNING)) {
             throw new SimulationRunnerException("Cannot change speed of a running simulation");
         }
         animation = new Timeline(
-                new KeyFrame(Duration.seconds(speed), event -> firstPart()),
-                new KeyFrame(Duration.seconds(speed * 2), event -> secondPart()),
-                new KeyFrame(Duration.seconds(speed * 3), event -> thirdPart()),
-                new KeyFrame(Duration.seconds(speed * 4), event -> fourthPart())
+                new KeyFrame(Duration.seconds(MAX_SPEED + MIN_SPEED - speed), event -> firstPart()),
+                new KeyFrame(Duration.seconds((MAX_SPEED + MIN_SPEED - speed) * 2), event -> secondPart()),
+                new KeyFrame(Duration.seconds((MAX_SPEED + MIN_SPEED - speed) * 3), event -> thirdPart()),
+                new KeyFrame(Duration.seconds((MAX_SPEED + MIN_SPEED - speed) * 4), event -> fourthPart())
         );
+        animation.setDelay(Duration.seconds((MAX_SPEED + MIN_SPEED - speed) * 5));
         animation.setCycleCount(Timeline.INDEFINITE);
     }
 
-    public static SimulationRunner prepare(SimulationSettings settings, WorldMapView mapView,
-                                           SimulationStatisticsView statisticsView, AnimalDetailsView animalDetailsView,
+    public void init() {
+        mapView.onClick(this::tryTrackAnimal);
+        animalDetailsView.onCheck(this::trackerAnimalSnapshot);
+        animalDetailsView.onFinish(this::finishTracking);
+    }
+
+    private void trackerAnimalSnapshot(int epoch) {
+        var snapshot = animalTracker.getSnapshot(epoch);
+        animalDetailsView.update(snapshot.getChildren(), snapshot.getDescendants());
+    }
+
+    private void finishTracking() {
+        animalTracker = null;
+        animalDetailsView.reset();
+    }
+
+    public void tryTrackAnimal(Vector2d position) {
+        if (animation.getStatus().equals(Animation.Status.RUNNING)) {
+            return;
+        }
+
+        engine.getAnimalAt(position).ifPresent(animal -> {
+            animalTracker = new AnimalTracker(
+                    animal, () -> animalDetailsView.onAnimalDeath(engine.getCurrentEpoch())
+            );
+            animalDetailsView.reset();
+            animalDetailsView.makeActive(animal.getGenes());
+        });
+    }
+
+    public static SimulationRunner prepare(SimulationSettings settings, MapController mapView,
+                                           SimulationStatisticsController statisticsView, AnimalDetailsController animalDetailsView,
                                            Rand rand) {
-        var statistics = new SimulationStatistics();
+        var statistics = new SimulationStatisticsManager();
         var engine = buildSimulation(settings, statistics, rand);
         prepareView(mapView, statisticsView, engine, statistics);
 
         var runner = new SimulationRunner(mapView, statisticsView, animalDetailsView, engine, statistics);
         runner.setSpeed(DEFAULT_SPEED);
+
         return runner;
     }
 
+    public void afterPreparation() {
+        mapView.redrawFields(engine.getMapBorders(), engine.getMapJungleBorders());
+        mapView.redrawAnimals(engine.getAnimalsWithTopEnergy());
+        mapView.drawPlants(engine.getPlants());
+    }
+
     private void firstPart() {
-        engine.newEpoch();
-        engine.checkAnimalsEnergy();
         engine.turnAnimals();
 
-        mapView.drawAnimals(engine.getAnimalsWithTopEnergy());
+        mapView.redrawAnimals(engine.getAnimalsWithTopEnergy());
+        mapView.drawPlants(engine.getPlants());
         statisticsView.setLivingAnimals(statistics.getLivingAnimals());
-        statisticsView.setMostCommonGenes(statistics.getMostCommonGenes());
+        statisticsView.setMostCommonGenes(statistics.getMostCommonGenes(
+                SimulationStatisticsController.MOST_COMMON_GENES_MAX
+        ));
         statisticsView.setAverageEnergy(statistics.getAverageEnergy());
         statisticsView.setAverageLifeTime(statistics.getAverageLifeTime());
     }
 
     private void secondPart() {
+        var deadAnimals = engine.checkAnimalsEnergy();
+        if (animalTracker != null) {
+            deadAnimals.forEach(animal -> {
+                if (animalTracker.notifyAnimalDeath(animal)) {
+                    animalDetailsView.onAnimalDeath(engine.getCurrentEpoch());
+                }
+            });
+        }
         engine.moveAnimals();
 
-        mapView.drawAnimals(engine.getAnimalsWithTopEnergy());
+        mapView.redrawAnimals(engine.getAnimalsWithTopEnergy());
         mapView.drawPlants(engine.getPlants());
     }
 
     private void thirdPart() {
         engine.feedAnimals();
-        engine.procreate();
+        var childrenAndParents = engine.procreate();
+        if (animalTracker != null) {
+            childrenAndParents.forEach(trio -> animalTracker.notifyAnimalBorn(trio.first, trio.second, trio.third));
+        }
 
-        mapView.drawAnimals(engine.getAnimalsWithTopEnergy());
+        mapView.redrawAnimals(engine.getAnimalsWithTopEnergy());
+        mapView.drawPlants(engine.getPlants());
         statisticsView.setLivingAnimals(statistics.getLivingAnimals());
         statisticsView.setLivingPlants(statistics.getLivingPlants());
-        statisticsView.setMostCommonGenes(statistics.getMostCommonGenes());
+        statisticsView.setMostCommonGenes(statistics.getMostCommonGenes(
+                SimulationStatisticsController.MOST_COMMON_GENES_MAX
+        ));
         statisticsView.setAverageEnergy(statistics.getAverageEnergy());
         statisticsView.setAverageChildren(statistics.getAverageChildren());
     }
 
     private void fourthPart() {
-        var newPlants = engine.addPlants();
+        engine.addPlants();
 
-        mapView.drawPlants(newPlants);
+        mapView.redrawAnimals(engine.getAnimalsWithTopEnergy());
+        mapView.drawPlants(engine.getPlants());
         statisticsView.setLivingPlants(statistics.getLivingPlants());
+        engine.nextEpoch();
+        if (animalTracker != null) {
+            animalTracker.nextEpoch();
+        }
     }
 
-    private static SimulationEngine buildSimulation(SimulationSettings settings, SimulationStatistics statistics,
+    private static SimulationEngine buildSimulation(SimulationSettings settings, SimulationStatisticsManager statistics,
                                                     Rand rand) {
         var map = WorldMap.create(settings.getMapWidth(), settings.getMapHeight(), settings.getJungleRatio());
         var genesFactory = new GenesFactory(rand);
@@ -128,17 +191,21 @@ public class SimulationRunner {
         var plantFactory = new PlantFactory(map, statistics);
         var entityFactory = new EntityFactoryFacade(animalFactory, plantFactory);
 
-        return new SimulationEngine(settings, map, entityFactory, rand);
+        var engine = new SimulationEngine(settings, map, entityFactory, rand);
+        engine.init(START_ANIMALS_NUMBER);
+        return engine;
     }
 
-    private static void prepareView(WorldMapView mapView, SimulationStatisticsView statisticsView,
-                                    SimulationEngine engine, SimulationStatistics statistics) {
-        mapView.drawAnimals(engine.getAnimalsWithTopEnergy());
+    private static void prepareView(MapController mapView, SimulationStatisticsController statisticsView,
+                                    SimulationEngine engine, SimulationStatisticsManager statistics) {
+        mapView.redrawAnimals(engine.getAnimalsWithTopEnergy());
         mapView.drawPlants(engine.getPlants());
 
         statisticsView.setLivingAnimals(statistics.getLivingAnimals());
         statisticsView.setLivingPlants(statistics.getLivingPlants());
-        statisticsView.setMostCommonGenes(statistics.getMostCommonGenes());
+        statisticsView.setMostCommonGenes(
+                statistics.getMostCommonGenes(SimulationStatisticsController.MOST_COMMON_GENES_MAX)
+        );
         statisticsView.setAverageEnergy(statistics.getAverageEnergy());
         statisticsView.setAverageLifeTime(statistics.getAverageLifeTime());
         statisticsView.setAverageChildren(statistics.getAverageChildren());

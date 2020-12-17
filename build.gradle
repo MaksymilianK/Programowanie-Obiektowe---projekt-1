@@ -28,7 +28,7 @@ test {
     useJUnitPlatform()
 }
 
-mainClassName = "agh.cs.lab.World"
+mainClassName = "agh.cs.lab.App"
 jar {
     manifest {
         attributes(

@@ -5,14 +5,10 @@ import agh.cs.lab.element.EntityFactoryFacade;
 import agh.cs.lab.element.animal.Animal;
 import agh.cs.lab.element.plant.Plant;
 import agh.cs.lab.map.WorldMap;
-import agh.cs.lab.shared.Direction;
-import agh.cs.lab.shared.Rand;
-import agh.cs.lab.shared.Vector2d;
-import agh.cs.lab.statistics.AnimalTracker;
+import agh.cs.lab.shared.*;
 
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
+import java.util.function.Consumer;
 
 public class SimulationEngine {
 
@@ -23,27 +19,13 @@ public class SimulationEngine {
     private final Set<Animal> animals = new HashSet<>();
     private final Set<Plant> plants = new HashSet<>();
 
-    private AnimalTracker tracker;
+    private int currentEpoch = 0;
 
     public SimulationEngine(SimulationSettings settings, WorldMap map, EntityFactoryFacade entityFactory, Rand rand) {
         this.settings = settings;
         this.map = map;
         this.entityFactory = entityFactory;
         this.rand = rand;
-    }
-
-    public void setTracker(AnimalTracker tracker) {
-        removeTracker();
-
-        this.tracker = tracker;
-        animals.forEach(animal -> animal.addObserver(tracker));
-    }
-
-    public void removeTracker() {
-        if (tracker != null) {
-            animals.forEach(animal -> animal.removeObserver(tracker));
-            tracker = null;
-        }
     }
 
     public void init(int initAnimals) {
@@ -62,20 +44,30 @@ public class SimulationEngine {
         }
     }
 
-    public void newEpoch() {
+    public void nextEpoch() {
         animals.forEach(Entity::addEpochToLife);
         animals.forEach(Entity::addEpochToLife);
+        currentEpoch++;
     }
 
-    public void checkAnimalsEnergy() {
+    public int getCurrentEpoch() {
+        return currentEpoch;
+    }
+
+    public Set<Animal> checkAnimalsEnergy() {
+        var deadAnimals = new HashSet<Animal>();
+
         var iterator = animals.iterator();
         while (iterator.hasNext()) {
             var animal = iterator.next();
             if (animal.getEnergy() <= 0) {
                 animal.kill();
+                deadAnimals.add(animal);
                 iterator.remove();
             }
         }
+
+        return deadAnimals;
     }
 
     public void turnAnimals() {
@@ -90,19 +82,17 @@ public class SimulationEngine {
     }
 
     public void feedAnimals() {
-        var fedAnimals = new HashSet<Animal>();
-
         map.getAnimalsToFeed().forEach(field -> {
             field.first.eat();
-            field.second.forEach(animal -> {
-                animal.addEnergy(settings.getPlantEnergy() / animals.size());
-            });
+            field.second.forEach(animal -> animal.addEnergy(settings.getPlantEnergy() / animals.size()));
 
             plants.remove(field.first);
         });
     }
 
-    public void procreate() {
+    public Set<Trio<Animal, Animal, Animal>> procreate() {
+        var newChildren = new HashSet<Trio<Animal, Animal, Animal>>();
+
         map.getAnimalsToProcreate(settings.getProcreationEnergy()).forEach(animals -> {
             Animal parent1 = animals.get(0);
             Animal parent2 = animals.get(rand.randInt(1, animals.size()));
@@ -119,15 +109,21 @@ public class SimulationEngine {
             parent1.subtractEnergy(parent1.getEnergy() / 4);
             parent2.subtractEnergy(parent2.getEnergy() / 4);
 
-            this.animals.add(entityFactory.giveBirthToAnimal(childPosition, parent1, parent2));
+            var child = entityFactory.giveBirthToAnimal(childPosition, parent1, parent2);
+            this.animals.add(child);
+            newChildren.add(new Trio<>(child, parent1, parent2));
         });
+
+        return newChildren;
     }
 
-    public Set<Plant> addPlants() {
-        var newPlants = new HashSet<Plant>();
-        newPlants.add(trySetPlant(map.getEmptyFieldsInsideJungle()));
-        newPlants.add(trySetPlant(map.getEmptyFieldsOutsideJungle()));
-        return newPlants;
+    public void addPlants() {
+        trySetPlant(map.getEmptyFieldsInsideJungle());
+        trySetPlant(map.getEmptyFieldsOutsideJungle());
+    }
+
+    public Set<Animal> getAnimals() {
+        return Collections.unmodifiableSet(animals);
     }
 
     public Set<Animal> getAnimalsWithTopEnergy() {
@@ -138,19 +134,24 @@ public class SimulationEngine {
         return map.getPlants();
     }
 
-    private Plant trySetPlant(List<Vector2d> fields) {
-        if (fields.isEmpty()) {
-            return null;
-        } else {
+    public Pair<Vector2d, Vector2d> getMapBorders() {
+        return map.getMapBorders();
+    }
+
+    public Pair<Vector2d, Vector2d> getMapJungleBorders() {
+        return map.getJungleBorders();
+    }
+
+    public Optional<Animal> getAnimalAt(Vector2d position) {
+        return map.getAnimalAt(position);
+    }
+
+    private void trySetPlant(List<Vector2d> fields) {
+        if (!fields.isEmpty()) {
             int index = rand.randInt(fields.size());
             var plant = entityFactory.createPlant(fields.get(index));
             plants.add(plant);
-            return plant;
         }
-    }
-
-    public Set<Animal> v() {
-        return animals;
     }
 
     private Direction getNewOrientation(Animal animal) {

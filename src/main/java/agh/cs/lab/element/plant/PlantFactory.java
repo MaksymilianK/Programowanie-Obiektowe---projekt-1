@@ -1,7 +1,7 @@
 package agh.cs.lab.element.plant;
 
 import agh.cs.lab.element.EntityFactory;
-import agh.cs.lab.statistics.SimulationStatistics;
+import agh.cs.lab.statistics.SimulationStatisticsManager;
 import agh.cs.lab.map.WorldMap;
 import agh.cs.lab.shared.Vector2d;
 
@@ -11,7 +11,7 @@ public class PlantFactory extends EntityFactory {
 
     private int counter = 0;
 
-    public PlantFactory(WorldMap map, SimulationStatistics statistics) {
+    public PlantFactory(WorldMap map, SimulationStatisticsManager statistics) {
         super(map, statistics);
     }
 

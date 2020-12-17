@@ -5,7 +5,7 @@ import agh.cs.lab.element.animal.Animal;
 import java.util.HashMap;
 import java.util.Map;
 
-public class LivingAnimalsChildrenCounter {
+public class ChildrenCounter {
 
     private final Map<Animal, Integer> childrenCounter = new HashMap<>();
 
@@ -25,9 +25,8 @@ public class LivingAnimalsChildrenCounter {
     public void addChildToParent(Animal parent) {
         if (childrenCounter.containsKey(parent)) {
             childrenCounter.put(parent, childrenCounter.get(parent) + 1);
+            totalChildren++;
         }
-
-        totalChildren++;
     }
 
     public void removeAnimal(Animal animal) {
@@ -35,6 +34,10 @@ public class LivingAnimalsChildrenCounter {
     }
 
     public float getAverageChildren() {
-        return (float) childrenCounter.size() / (float) totalChildren;
+        if (totalChildren == 0) {
+            return 0;
+        } else {
+            return (float) totalChildren / (float) childrenCounter.size();
+        }
     }
 }

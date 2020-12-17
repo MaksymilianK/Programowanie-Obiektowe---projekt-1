@@ -6,34 +6,46 @@
 <?import javafx.scene.text.Text?>
 <?import javafx.scene.layout.GridPane?>
 <?import javafx.scene.control.Label?>
+<?import javafx.scene.text.Font?>
 
-<GridPane xmlns:fx="http://javafx.com/fxml"
-          fx:controller="agh.cs.lab.view.SimulationStatisticsView">
-    <ImageView fitWidth="50" fitHeight="50" GridPane.rowIndex="0" GridPane.columnIndex="0">
-        <image>
-            <Image url="./animal0.png"/>
-        </image>
-    </ImageView>
-    <Text fx:id="livingAnimals" GridPane.rowIndex="0" GridPane.columnIndex="1">50</Text>
+<GridPane xmlns:fx="http://javafx.com/fxml" fx:controller="agh.cs.lab.view.SimulationStatisticsController"
+          alignment="CENTER" vgap="20" hgap="30">
+    <Label GridPane.rowIndex="0" GridPane.columnIndex="0" GridPane.rowSpan="1" GridPane.columnSpan="2">
+        Statystyki<font>
+        <Font size="20"/>
+    </font>
+    </Label>
 
     <ImageView fitWidth="50" fitHeight="50" GridPane.rowIndex="1" GridPane.columnIndex="0">
-        <image>
-            <Image url="./plant.png"/>
-        </image>
+        <Image url="./animal.png"/>
     </ImageView>
-    <Text fx:id="livingPlants" GridPane.rowIndex="1" GridPane.columnIndex="1">50</Text>
+    <Text fx:id="livingAnimals" GridPane.rowIndex="1" GridPane.columnIndex="1">
+        <font>
+            <Font size="25"/>
+        </font>
+    </Text>
 
-    <VBox GridPane.rowIndex="2" GridPane.columnIndex="0" GridPane.rowSpan="1" GridPane.columnSpan="2">
+    <ImageView fitWidth="50" fitHeight="50" GridPane.rowIndex="2" GridPane.columnIndex="0">
+        <Image url="./plant.png"/>
+    </ImageView>
+    <Text fx:id="livingPlants" GridPane.rowIndex="2" GridPane.columnIndex="1">
+        50
+        <font>
+            <Font size="25"/>
+        </font>
+    </Text>
+
+    <VBox GridPane.rowIndex="3" GridPane.columnIndex="0" GridPane.rowSpan="1" GridPane.columnSpan="2">
         <Label>Dominujące genotypy</Label>
         <VBox fx:id="mostCommonGenes"></VBox>
     </VBox>
 
-    <Label GridPane.rowIndex="3" GridPane.columnIndex="0">Średnia energia</Label>
-    <Text fx:id="averageEnergy" GridPane.rowIndex="3" GridPane.columnIndex="1">50</Text>
+    <Label GridPane.rowIndex="4" GridPane.columnIndex="0">Średnia energia</Label>
+    <Text fx:id="averageEnergy" GridPane.rowIndex="4" GridPane.columnIndex="1">50</Text>
 
-    <Label GridPane.rowIndex="4" GridPane.columnIndex="0">Średnio żyją</Label>
-    <Text fx:id="averageLifeTime" GridPane.rowIndex="4" GridPane.columnIndex="1">50</Text>
+    <Label GridPane.rowIndex="5" GridPane.columnIndex="0">Średnio żyją</Label>
+    <Text fx:id="averageLifeTime" GridPane.rowIndex="5" GridPane.columnIndex="1">50</Text>
 
-    <Label GridPane.rowIndex="5" GridPane.columnIndex="0">Średnio dzieci</Label>
-    <Text fx:id="averageChildren" GridPane.rowIndex="5" GridPane.columnIndex="1">50</Text>
+    <Label GridPane.rowIndex="6" GridPane.columnIndex="0">Średnio dzieci</Label>
+    <Text fx:id="averageChildren" GridPane.rowIndex="6" GridPane.columnIndex="1">50</Text>
 </GridPane>

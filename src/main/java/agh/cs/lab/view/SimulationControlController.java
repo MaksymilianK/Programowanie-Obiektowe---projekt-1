@@ -7,7 +7,7 @@ import javafx.scene.control.Slider;
 
 import java.util.function.Consumer;
 
-public class SimulationControlView implements View {
+public class SimulationControlController implements Controller {
 
     @FXML
     private Slider speed;
@@ -24,11 +24,6 @@ public class SimulationControlView implements View {
     @FXML
     private Button statisticsButton;
 
-    private Consumer<Double> onResume;
-    private Runnable onPause;
-    private Runnable onFinish;
-    private Runnable onStatistics;
-
     public void setRunning(boolean isRunning) {
         speed.setDisable(isRunning);
         resumeButton.setDisable(isRunning);
@@ -38,19 +33,19 @@ public class SimulationControlView implements View {
     }
 
     public void onResume(Consumer<Double> onResume) {
-        this.onResume = onResume;
+        resumeButton.setOnAction(event -> onResume.accept(speed.getValue()));
     }
 
     public void onPause(Runnable onPause) {
-        this.onPause = onPause;
+        pauseButton.setOnAction(event -> onPause.run());
     }
 
     public void onFinish(Runnable onFinish) {
-        this.onFinish = onFinish;
+        finishButton.setOnAction(event -> onFinish.run());
     }
 
     public void onStatistics(Runnable onStatistics) {
-        this.onStatistics = onStatistics;
+        statisticsButton.setOnAction(event -> onStatistics.run());
     }
 
     @Override
@@ -59,15 +54,10 @@ public class SimulationControlView implements View {
         setRunning(false);
     }
 
-    @FXML
-    private void initialize() {
+    @Override
+    public void init() {
         speed.setMin(SimulationRunner.MIN_SPEED);
-        speed.setMin(SimulationRunner.MAX_SPEED);
+        speed.setMax(SimulationRunner.MAX_SPEED);
         reset();
-
-        resumeButton.setOnAction(event -> onResume.accept(speed.getValue()));
-        pauseButton.setOnAction(event -> onPause.run());
-        finishButton.setOnAction(event -> onFinish.run());
-        statisticsButton.setOnAction(event -> onStatistics.run());
     }
 }

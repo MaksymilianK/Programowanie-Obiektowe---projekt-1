@@ -2,11 +2,55 @@
 
 <?import javafx.scene.control.ScrollPane?>
 <?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.control.Separator?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.RowConstraints?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.geometry.Insets?>
 
-<GridPane xmlns:fx="http://javafx.com/fxml" fx:controller="agh.cs.lab.view.AppView">
-    <ScrollPane fx:id="mapContainer1">
+<GridPane xmlns:fx="http://javafx.com/fxml" fx:controller="agh.cs.lab.view.DoubleMapAppController" fx:id="app">
+    <ScrollPane fx:id="firstMapContainer" GridPane.rowIndex="0" GridPane.columnIndex="0">
+        <fx:include source="map.fxml" fx:id="firstMap"/>
     </ScrollPane>
 
-    <ScrollPane fx:id="mapContainer2">
+    <ScrollPane fx:id="secondMapContainer" GridPane.rowIndex="0" GridPane.columnIndex="1">
+        <fx:include source="map.fxml" fx:id="secondMap"/>
     </ScrollPane>
+
+    <ScrollPane GridPane.rowIndex="1" GridPane.columnIndex="0">
+        <HBox spacing="50">
+            <padding>
+                <Insets top="50" bottom="50" left="50" right="50"/>
+            </padding>
+
+            <fx:include source="simulation-control.fxml" fx:id="firstControl"/>
+            <Separator/>
+            <fx:include source="v-simulation-statistics.fxml" fx:id="firstStatistics"/>
+            <Separator/>
+            <fx:include source="selected-animal-details.fxml" fx:id="firstAnimalDetails"/>
+        </HBox>
+    </ScrollPane>
+
+    <ScrollPane GridPane.rowIndex="1" GridPane.columnIndex="1">
+        <HBox spacing="50">
+            <padding>
+                <Insets top="50" bottom="50" left="50" right="50"/>
+            </padding>
+
+            <fx:include source="simulation-control.fxml" fx:id="secondControl"/>
+            <Separator/>
+            <fx:include source="v-simulation-statistics.fxml" fx:id="secondStatistics"/>
+            <Separator/>
+            <fx:include source="selected-animal-details.fxml" fx:id="secondAnimalDetails"/>
+        </HBox>
+    </ScrollPane>
+
+    <columnConstraints>
+        <ColumnConstraints percentWidth="50"/>
+        <ColumnConstraints percentWidth="50"/>
+    </columnConstraints>
+    <rowConstraints>
+        <RowConstraints percentHeight="75"/>
+        <RowConstraints percentHeight="25"/>
+    </rowConstraints>
 </GridPane>

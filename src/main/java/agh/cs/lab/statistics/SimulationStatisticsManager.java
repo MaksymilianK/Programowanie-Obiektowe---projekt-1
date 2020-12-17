@@ -6,20 +6,36 @@ import agh.cs.lab.element.animal.Gene;
 import agh.cs.lab.element.plant.Plant;
 import agh.cs.lab.element.plant.PlantObserver;
 import agh.cs.lab.shared.Direction;
+import agh.cs.lab.shared.Pair;
 import agh.cs.lab.shared.Vector2d;
 
-import java.util.Set;
+import java.util.*;
 
-public class SimulationStatistics implements AnimalObserver, PlantObserver {
+public class SimulationStatisticsManager implements AnimalObserver, PlantObserver {
 
     private final GenesCounter genesCounter = new GenesCounter();
-    private final LivingAnimalsChildrenCounter childrenCounter = new LivingAnimalsChildrenCounter();
+    private final ChildrenCounter childrenCounter = new ChildrenCounter();
+    private final Map<Integer, SimulationStatisticsSnapshot> snapshots = new HashMap<>();
 
     private int livingAnimals = 0;
     private int deadAnimals = 0;
     private int livingPlants = 0;
     private int livingAnimalEnergy = 0;
     private int deadAnimalsEpochLived = 0;
+
+    public void nextEpoch(int epoch) {
+        snapshots.put(
+                epoch,
+                SimulationStatisticsSnapshot.builder()
+                        .livingAnimals(getLivingAnimals())
+                        .livingPlants(getLivingPlants())
+                        .genes(genesCounter.getAll())
+                        .averageEnergy(getAverageEnergy())
+                        .averageLifeTime(getAverageLifeTime())
+                        .averageChildren(getAverageChildren())
+                        .build()
+        );
+    }
 
     @Override
     public void onAnimalCreated(Animal animal) {
@@ -76,8 +92,8 @@ public class SimulationStatistics implements AnimalObserver, PlantObserver {
         return livingPlants;
     }
 
-    public Set<Gene> getMostCommonGenes() {
-        return genesCounter.getMostCommonGenes();
+    public List<Pair<Gene, Integer>> getMostCommonGenes(int howMany) {
+        return genesCounter.getMostCommonGenes(howMany);
     }
 
     public float getAverageEnergy() {
@@ -90,6 +106,13 @@ public class SimulationStatistics implements AnimalObserver, PlantObserver {
 
     public float getAverageChildren() {
         return childrenCounter.getAverageChildren();
+    }
+
+    public SimulationStatisticsSnapshot getSnapshot(int epoch) {
+        if (!snapshots.containsKey(epoch)) {
+            throw new SimulationStatisticsException("There are no statistics for the epoch " + epoch);
+        }
+        return snapshots.get(epoch);
     }
 
     private void onNewAnimal(Animal animal) {

@@ -1,15 +1,19 @@
 package agh.cs.lab.view;
 
 import agh.cs.lab.element.animal.Gene;
+import agh.cs.lab.shared.Pair;
 import javafx.fxml.FXML;
+import javafx.scene.control.Label;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
 
 import java.util.List;
-import java.util.Set;
 import java.util.stream.Collectors;
 
-public class SimulationStatisticsView implements View {
+public class SimulationStatisticsController implements Controller {
+
+    public static final int MOST_COMMON_GENES_MAX = 3;
 
     @FXML
     private Text livingAnimals;
@@ -37,14 +41,16 @@ public class SimulationStatisticsView implements View {
         this.livingPlants.setText(Integer.toString(livingPlants));
     }
 
-    public void setMostCommonGenes(Set<Gene> mostCommonGenes) {
-        var genes = mostCommonGenes.stream()
-                .limit(3)
-                .map(gene -> new Text(gene.toString()))
-                .collect(Collectors.toSet());
-
+    public void setMostCommonGenes(List<Pair<Gene, Integer>> mostCommonGenes) {
         this.mostCommonGenes.getChildren().clear();
-        this.mostCommonGenes.getChildren().addAll(genes);
+
+        mostCommonGenes.forEach(gene -> {
+            var geneDisplay = new HBox();
+            geneDisplay.setSpacing(20);
+            geneDisplay.getChildren().add(new Label(gene.first.toString()));
+            geneDisplay.getChildren().add(new Text(gene.second.toString()));
+            this.mostCommonGenes.getChildren().add(geneDisplay);
+        });
     }
 
     public void setAverageEnergy(float averageEnergy) {
@@ -69,8 +75,8 @@ public class SimulationStatisticsView implements View {
         averageChildren.setText("0");
     }
 
-    @FXML
-    private void initialize() {
+    @Override
+    public void init() {
         reset();
     }
 }

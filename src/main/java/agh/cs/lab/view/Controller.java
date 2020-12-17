@@ -1,6 +1,7 @@
 package agh.cs.lab.view;
 
-public interface View {
+public interface Controller {
 
+    void init();
     void reset();
 }

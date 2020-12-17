@@ -1,9 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.scene.canvas.Canvas?>
+
 <?import javafx.scene.layout.StackPane?>
 
-<StackPane fx:id="pane" xmlns:fx="http://javafx.com/fxml" fx:controller="agh.cs.lab.view.WorldMapView">
+<StackPane xmlns:fx="http://javafx.com/fxml" fx:controller="agh.cs.lab.view.MapController" fx:id="container">
     <Canvas fx:id="fields"/>
     <Canvas fx:id="entities"/>
 </StackPane>

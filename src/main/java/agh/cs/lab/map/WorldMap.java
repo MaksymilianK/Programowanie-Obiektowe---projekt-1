@@ -194,6 +194,10 @@ public class WorldMap implements AnimalObserver, PlantObserver {
         return new WorldMap(mapBorders, jungleBorders, fields);
     }
 
+    public Optional<Animal> getAnimalAt(Vector2d position) {
+        return fields.get(position).getHealthiestAnimal();
+    }
+
     private void placeAnimal(Animal animal) {
         fields.get(animal.getPosition()).addAnimal(animal);
         withAnimals.add(fields.get(animal.getPosition()));

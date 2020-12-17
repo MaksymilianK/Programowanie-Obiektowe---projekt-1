@@ -21,16 +21,14 @@ public class GenesFactory {
         }
 
         fixGenes(genes);
+        sortGenes(genes);
+
         return new Gene(Collections.unmodifiableList(genes), stringRepresentation(genes));
     }
 
     public Gene create(Gene parent1, Gene parent2) {
         int break1 = rand.randInt(1, GENES_LENGTH - 1);
-
-        int break2;
-        do {
-            break2 = rand.randInt(break1 + 1, GENES_LENGTH);
-        } while (break2 == break1);
+        int break2 = rand.randInt(break1 + 1, GENES_LENGTH);
 
         var dominantParent = rand.randInt(2) == 0 ? parent1 : parent2;
         var weakerParent = parent1 == dominantParent ? parent2 : parent1;
@@ -57,6 +55,7 @@ public class GenesFactory {
         }
 
         fixGenes(childGenes);
+        sortGenes(childGenes);
 
         return new Gene(Collections.unmodifiableList(childGenes), stringRepresentation(childGenes));
     }
@@ -86,5 +85,9 @@ public class GenesFactory {
                 genes.set(geneToChange, i);
             }
         }
+    }
+
+    private void sortGenes(List<Integer> genes) {
+        genes.sort(Comparator.naturalOrder());
     }
 }
