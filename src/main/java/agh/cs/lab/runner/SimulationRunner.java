@@ -1,16 +1,15 @@
 package agh.cs.lab.runner;
 
 import agh.cs.lab.element.EntityFactoryFacade;
-import agh.cs.lab.element.animal.Animal;
 import agh.cs.lab.element.animal.AnimalFactory;
-import agh.cs.lab.element.animal.GenesFactory;
+import agh.cs.lab.element.animal.GeneFactory;
 import agh.cs.lab.element.plant.PlantFactory;
 import agh.cs.lab.engine.SimulationEngine;
 import agh.cs.lab.engine.SimulationSettings;
 import agh.cs.lab.shared.Vector2d;
 import agh.cs.lab.tracker.AnimalTracker;
 import agh.cs.lab.statistics.SimulationStatisticsManager;
-import agh.cs.lab.map.WorldMap;
+import agh.cs.lab.engine.map.WorldMap;
 import agh.cs.lab.shared.Rand;
 import agh.cs.lab.view.AnimalDetailsController;
 import agh.cs.lab.view.SimulationStatisticsController;
@@ -88,6 +87,7 @@ public class SimulationRunner {
     }
 
     private void finishTracking() {
+        mapView.redrawAnimal(animalTracker.getTrackedAnimal());
         animalTracker = null;
         animalDetailsView.reset();
     }
@@ -97,12 +97,17 @@ public class SimulationRunner {
             return;
         }
 
+        if (animalTracker != null) {
+            engine.getAnimalAt(animalTracker.getTrackedAnimal().getPosition()).ifPresent(mapView::redrawAnimal);
+        }
+
         engine.getAnimalAt(position).ifPresent(animal -> {
             animalTracker = new AnimalTracker(
                     animal, () -> animalDetailsView.onAnimalDeath(engine.getCurrentEpoch())
             );
             animalDetailsView.reset();
-            animalDetailsView.makeActive(animal.getGenes());
+            animalDetailsView.makeActive(animal.getGene());
+            mapView.drawTrackedAnimal(animalTracker.getTrackedAnimal());
         });
     }
 
@@ -129,6 +134,9 @@ public class SimulationRunner {
         engine.turnAnimals();
 
         mapView.redrawAnimals(engine.getAnimalsWithTopEnergy());
+        if (animalTracker != null && !animalTracker.isDead()) {
+            mapView.drawTrackedAnimal(animalTracker.getTrackedAnimal());
+        }
         mapView.drawPlants(engine.getPlants());
         statisticsView.setLivingAnimals(statistics.getLivingAnimals());
         statisticsView.setMostCommonGenes(statistics.getMostCommonGenes(
@@ -142,7 +150,8 @@ public class SimulationRunner {
         var deadAnimals = engine.checkAnimalsEnergy();
         if (animalTracker != null) {
             deadAnimals.forEach(animal -> {
-                if (animalTracker.notifyAnimalDeath(animal)) {
+                animalTracker.notifyAnimalDeath(animal);
+                if (animalTracker.isDead()) {
                     animalDetailsView.onAnimalDeath(engine.getCurrentEpoch());
                 }
             });
@@ -150,6 +159,10 @@ public class SimulationRunner {
         engine.moveAnimals();
 
         mapView.redrawAnimals(engine.getAnimalsWithTopEnergy());
+        if (animalTracker != null && !animalTracker.isDead()) {
+            mapView.drawTrackedAnimal(animalTracker.getTrackedAnimal());
+        }
+
         mapView.drawPlants(engine.getPlants());
     }
 
@@ -161,6 +174,9 @@ public class SimulationRunner {
         }
 
         mapView.redrawAnimals(engine.getAnimalsWithTopEnergy());
+        if (animalTracker != null && !animalTracker.isDead()) {
+            mapView.drawTrackedAnimal(animalTracker.getTrackedAnimal());
+        }
         mapView.drawPlants(engine.getPlants());
         statisticsView.setLivingAnimals(statistics.getLivingAnimals());
         statisticsView.setLivingPlants(statistics.getLivingPlants());
@@ -175,6 +191,9 @@ public class SimulationRunner {
         engine.addPlants();
 
         mapView.redrawAnimals(engine.getAnimalsWithTopEnergy());
+        if (animalTracker != null && !animalTracker.isDead()) {
+            mapView.drawTrackedAnimal(animalTracker.getTrackedAnimal());
+        }
         mapView.drawPlants(engine.getPlants());
         statisticsView.setLivingPlants(statistics.getLivingPlants());
         engine.nextEpoch();
@@ -186,13 +205,12 @@ public class SimulationRunner {
     private static SimulationEngine buildSimulation(SimulationSettings settings, SimulationStatisticsManager statistics,
                                                     Rand rand) {
         var map = WorldMap.create(settings.getMapWidth(), settings.getMapHeight(), settings.getJungleRatio());
-        var genesFactory = new GenesFactory(rand);
+        var genesFactory = new GeneFactory(rand);
         var animalFactory = new AnimalFactory(settings.getStartEnergy(), map, statistics, rand, genesFactory);
         var plantFactory = new PlantFactory(map, statistics);
         var entityFactory = new EntityFactoryFacade(animalFactory, plantFactory);
 
-        var engine = new SimulationEngine(settings, map, entityFactory, rand);
-        engine.init(START_ANIMALS_NUMBER);
+        var engine = SimulationEngine.create(settings, map, entityFactory, rand, START_ANIMALS_NUMBER);
         return engine;
     }
 
@@ -209,5 +227,9 @@ public class SimulationRunner {
         statisticsView.setAverageEnergy(statistics.getAverageEnergy());
         statisticsView.setAverageLifeTime(statistics.getAverageLifeTime());
         statisticsView.setAverageChildren(statistics.getAverageChildren());
+    }
+
+    public void drawMostCommonGenes() {
+        mapView.drawAnimalsWithMostCommonGenes(engine.getAnimalsWithGenes(statistics.getMostCommonGenes()));
     }
 }

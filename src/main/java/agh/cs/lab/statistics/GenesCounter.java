@@ -64,6 +64,10 @@ public class GenesCounter {
         return mostCommonGenes;
     }
 
+    public Set<Gene> getMostCommonGenes() {
+        return genesCounter.lastEntry().getValue();
+    }
+
     private void setNewCount(Gene gene, int newCount) {
         if (genesCounter.containsKey(newCount)) {
             genesCounter.get(newCount).add(gene);

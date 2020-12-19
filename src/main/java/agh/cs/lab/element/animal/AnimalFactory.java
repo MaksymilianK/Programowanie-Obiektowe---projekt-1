@@ -2,7 +2,7 @@ package agh.cs.lab.element.animal;
 
 import agh.cs.lab.element.EntityFactory;
 import agh.cs.lab.statistics.SimulationStatisticsManager;
-import agh.cs.lab.map.WorldMap;
+import agh.cs.lab.engine.map.WorldMap;
 import agh.cs.lab.shared.Direction;
 import agh.cs.lab.shared.Rand;
 import agh.cs.lab.shared.Vector2d;
@@ -14,12 +14,12 @@ public class AnimalFactory extends EntityFactory {
     private final int startEnergy;
     private final SimulationStatisticsManager statistics;
     private final Rand rand;
-    private final GenesFactory genesFactory;
+    private final GeneFactory genesFactory;
 
     private int counter = 0;
 
     public AnimalFactory(int startEnergy, WorldMap map, SimulationStatisticsManager statistics, Rand rand,
-                         GenesFactory genesFactory) {
+                         GeneFactory genesFactory) {
         super(map, statistics);
         this.startEnergy = startEnergy;
         this.statistics = statistics;
@@ -42,7 +42,7 @@ public class AnimalFactory extends EntityFactory {
         return Animal.giveBirth(
                 ++counter,
                 position,
-                genesFactory.create(parent1.getGenes(), parent2.getGenes()),
+                genesFactory.create(parent1.getGene(), parent2.getGene()),
                 randomOrientation(),
                 startEnergy,
                 parent1,

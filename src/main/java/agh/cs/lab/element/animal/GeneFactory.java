@@ -4,16 +4,21 @@ import agh.cs.lab.shared.Rand;
 
 import java.util.*;
 
-public class GenesFactory {
+public class GeneFactory {
 
     public static final int GENES_LENGTH = 32;
 
     private final Rand rand;
 
-    public GenesFactory(Rand rand) {
+    public GeneFactory(Rand rand) {
         this.rand = rand;
     }
 
+    /**
+     * Creates a gene not depending on animal's parents.
+     *
+     * @return a gene
+     */
     public Gene create() {
         var genes = new ArrayList<Integer>(GENES_LENGTH);
         for (int i = 0; i < GENES_LENGTH; i++) {
@@ -26,6 +31,11 @@ public class GenesFactory {
         return new Gene(Collections.unmodifiableList(genes), stringRepresentation(genes));
     }
 
+    /**
+     * Creates a gene consisting of sequences from animal's parents.
+     *
+     * @return a gene
+     */
     public Gene create(Gene parent1, Gene parent2) {
         int break1 = rand.randInt(1, GENES_LENGTH - 1);
         int break2 = rand.randInt(break1 + 1, GENES_LENGTH);

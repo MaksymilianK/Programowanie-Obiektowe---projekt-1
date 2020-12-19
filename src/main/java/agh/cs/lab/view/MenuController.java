@@ -75,7 +75,6 @@ public class MenuController extends PrimaryController {
                     Integer.parseInt(moveEnergy.getText()),
                     Integer.parseInt(plantEnergy.getText()),
                     Float.parseFloat(jungleRatio.getText())
-            );
-        }
+         );
     }
 }

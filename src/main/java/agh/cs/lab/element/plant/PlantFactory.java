@@ -2,7 +2,7 @@ package agh.cs.lab.element.plant;
 
 import agh.cs.lab.element.EntityFactory;
 import agh.cs.lab.statistics.SimulationStatisticsManager;
-import agh.cs.lab.map.WorldMap;
+import agh.cs.lab.engine.map.WorldMap;
 import agh.cs.lab.shared.Vector2d;
 
 import java.util.Set;

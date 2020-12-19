@@ -22,6 +22,9 @@ public class SimulationControlController implements Controller {
     private Button finishButton;
 
     @FXML
+    private Button mostCommonGenesButton;
+
+    @FXML
     private Button statisticsButton;
 
     public void setRunning(boolean isRunning) {
@@ -29,6 +32,7 @@ public class SimulationControlController implements Controller {
         resumeButton.setDisable(isRunning);
         pauseButton.setDisable(!isRunning);
         finishButton.setDisable(isRunning);
+        mostCommonGenesButton.setDisable(isRunning);
         statisticsButton.setDisable(isRunning);
     }
 
@@ -42,6 +46,10 @@ public class SimulationControlController implements Controller {
 
     public void onFinish(Runnable onFinish) {
         finishButton.setOnAction(event -> onFinish.run());
+    }
+
+    public void onMostCommonGenes(Runnable onMostCommonGenes) {
+        mostCommonGenesButton.setOnAction(event -> onMostCommonGenes.run());
     }
 
     public void onStatistics(Runnable onStatistics) {

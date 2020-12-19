@@ -23,6 +23,41 @@ public class SimulationStatisticsManager implements AnimalObserver, PlantObserve
     private int livingAnimalEnergy = 0;
     private int deadAnimalsEpochLived = 0;
 
+    /*public SimulationStatisticsManager(StatisticsSaver saver) {
+        this.saver = saver;
+    }*/
+
+   /* public void save(int toEpoch) {
+        var snapshots = this.snapshots.entrySet().stream()
+                .filter(entry -> entry.getKey() <= toEpoch)
+                .collect(Collectors.toSet());
+
+        int totalLivingAnimals = 0;
+        int totalLivingPlants = 0;
+        var genesCounter = new HashMap<Gene, Integer>();
+        float totalAverageAnimalEnergy = 0;
+        int totalAnimalLifeTime = 0;
+        float totalAverageChildren = 0;
+
+        for (var entry : snapshots) {
+            totalLivingAnimals += entry.getValue().getLivingAnimals();
+            totalLivingPlants += entry.getValue().getLivingPlants();
+            genesCounter.
+            totalAverageAnimalEnergy += entry.getValue().getAverageEnergy();
+            totalAnimalLifeTime += entry.getValue().getAverageLifeTime();
+            totalAverageChildren += entry.getValue().getAverageChildren();
+        }
+
+        saver.saveAverage(
+                totalLivingAnimals / (float) snapshots.size(),
+                totalLivingPlants / (float) snapshots.size(),
+                totalLivingAnimals / (float) snapshots.size(),
+                totalAverageAnimalEnergy / (float) snapshots.size(),
+                totalAnimalLifeTime / (float) snapshots.size(),
+                totalAverageChildren / (float) snapshots.size()
+        );
+    }*/
+
     public void nextEpoch(int epoch) {
         snapshots.put(
                 epoch,
@@ -51,12 +86,12 @@ public class SimulationStatisticsManager implements AnimalObserver, PlantObserve
 
     @Override
     public void onAnimalDead(Animal animal) {
-        genesCounter.remove(animal.getGenes());
+        genesCounter.remove(animal.getGene());
         childrenCounter.removeAnimal(animal);
         livingAnimals--;
         deadAnimals++;
         livingAnimalEnergy -= animal.getEnergy();
-        deadAnimalsEpochLived += animal.getLengthOfLife();
+        deadAnimalsEpochLived = animal.getLengthOfLife();
     }
 
     @Override
@@ -96,12 +131,24 @@ public class SimulationStatisticsManager implements AnimalObserver, PlantObserve
         return genesCounter.getMostCommonGenes(howMany);
     }
 
+    public Set<Gene> getMostCommonGenes() {
+        return genesCounter.getMostCommonGenes();
+    }
+
     public float getAverageEnergy() {
-        return (float) livingAnimalEnergy / (float) livingAnimals;
+        if (livingAnimals == 0) {
+            return 0.0f;
+        } else {
+            return (float) livingAnimalEnergy / (float) livingAnimals;
+        }
     }
 
     public float getAverageLifeTime() {
-        return (float) deadAnimalsEpochLived / (float) deadAnimals;
+        if (deadAnimals == 0) {
+            return 0.0f;
+        } else {
+            return (float) deadAnimalsEpochLived / (float) deadAnimals;
+        }
     }
 
     public float getAverageChildren() {
@@ -116,7 +163,7 @@ public class SimulationStatisticsManager implements AnimalObserver, PlantObserve
     }
 
     private void onNewAnimal(Animal animal) {
-        genesCounter.add(animal.getGenes());
+        genesCounter.add(animal.getGene());
         livingAnimals++;
         livingAnimalEnergy += animal.getEnergy();
     }

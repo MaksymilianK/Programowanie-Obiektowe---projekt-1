@@ -3,12 +3,12 @@ package agh.cs.lab.engine;
 import agh.cs.lab.element.Entity;
 import agh.cs.lab.element.EntityFactoryFacade;
 import agh.cs.lab.element.animal.Animal;
+import agh.cs.lab.element.animal.Gene;
 import agh.cs.lab.element.plant.Plant;
-import agh.cs.lab.map.WorldMap;
+import agh.cs.lab.engine.map.WorldMap;
 import agh.cs.lab.shared.*;
 
 import java.util.*;
-import java.util.function.Consumer;
 
 public class SimulationEngine {
 
@@ -21,27 +21,32 @@ public class SimulationEngine {
 
     private int currentEpoch = 0;
 
-    public SimulationEngine(SimulationSettings settings, WorldMap map, EntityFactoryFacade entityFactory, Rand rand) {
+    private SimulationEngine(SimulationSettings settings, WorldMap map, EntityFactoryFacade entityFactory, Rand rand) {
         this.settings = settings;
         this.map = map;
         this.entityFactory = entityFactory;
         this.rand = rand;
     }
 
-    public void init(int initAnimals) {
+    public static SimulationEngine create(SimulationSettings settings, WorldMap map, EntityFactoryFacade entityFactory,
+                                          Rand rand, int startAnimals) {
         var emptyFields = map.getEmptyFieldsInsideJungle();
         emptyFields.addAll(map.getEmptyFieldsOutsideJungle());
 
-        if (emptyFields.size() < initAnimals) {
+        if (emptyFields.size() < startAnimals) {
             throw new SimulationException("Cannot create so many animals on simulation start - there is too few fields " +
                     "available");
         }
 
-        for (int i = 0; i < initAnimals; i++) {
+        var engine = new SimulationEngine(settings, map, entityFactory, rand);
+
+        for (int i = 0; i < startAnimals; i++) {
             int index = rand.randInt(emptyFields.size());
-            animals.add(entityFactory.createAnimal(emptyFields.get(index)));
+            engine.animals.add(entityFactory.createAnimal(emptyFields.get(index)));
             emptyFields.remove(index);
         }
+
+        return engine;
     }
 
     public void nextEpoch() {
@@ -144,6 +149,10 @@ public class SimulationEngine {
 
     public Optional<Animal> getAnimalAt(Vector2d position) {
         return map.getAnimalAt(position);
+    }
+
+    public Set<Animal> getAnimalsWithGenes(Collection<Gene> genes) {
+        return map.getHealthiestAnimalsWithGenes(genes);
     }
 
     private void trySetPlant(List<Vector2d> fields) {

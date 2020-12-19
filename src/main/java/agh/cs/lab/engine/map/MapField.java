@@ -1,6 +1,7 @@
-package agh.cs.lab.map;
+package agh.cs.lab.engine.map;
 
 import agh.cs.lab.element.animal.Animal;
+import agh.cs.lab.element.animal.Gene;
 import agh.cs.lab.element.plant.Plant;
 import agh.cs.lab.shared.Vector2d;
 
@@ -13,7 +14,7 @@ class MapField {
 
     private Plant plant = null;
 
-    public MapField(Vector2d position) {
+    MapField(Vector2d position) {
         this.position = position;
     }
 
@@ -21,7 +22,7 @@ class MapField {
         return !animals.isEmpty();
     }
 
-    public void addAnimal(Animal newAnimal) {
+    void addAnimal(Animal newAnimal) {
         int index = 0;
         for (var animal : animals) {
             if (animal.getEnergy() > newAnimal.getEnergy()) {
@@ -33,18 +34,18 @@ class MapField {
         animals.add(index, newAnimal);
     }
 
-    public void removeAnimal(Animal animal) {
+    void removeAnimal(Animal animal) {
         animals.remove(animal);
     }
 
-    public int countAnimalsWithEnergy(int energy) {
+    int countAnimalsWithEnergy(int energy) {
         if (animals.isEmpty()) {
             return 0;
         }
 
         int counter = 0;
         for (var animal : animals) {
-            if (animal.getEnergy() > energy) {
+            if (animal.getEnergy() >= energy) {
                 counter++;
             } else {
                 break;
@@ -53,7 +54,7 @@ class MapField {
         return counter;
     }
 
-    public Optional<Animal> getHealthiestAnimal() {
+    Optional<Animal> getHealthiestAnimal() {
         if (animalAt()) {
             return Optional.of(animals.get(0));
         } else {
@@ -69,7 +70,7 @@ class MapField {
      * @return list of animals with the same highest energy.
      * @throws MapException if there is no animal on the field
      */
-    public List<Animal> getHealthiestAnimals() {
+    List<Animal> getHealthiestAnimals() {
         if (!animalAt()) {
             throw new MapException("There is no animals on the field");
         }
@@ -95,17 +96,15 @@ class MapField {
      * @return list of animals ordered by their energies from the one with the highest to the one with the lowest
      * @throws MapException if there are less than two animals on the field
      */
-    public List<Animal> getAtLeastTwoHealthiestAnimals() {
+    List<Animal> getAtLeastTwoHealthiestAnimals() {
         if (animals.size() < 2) {
             throw new MapException("There is less than two animals on the field");
         }
 
         var healthiest = new ArrayList<Animal>();
-        healthiest.add(animals.get(0));
-        healthiest.add(animals.get(1));
 
         for (var animal : animals) {
-            if (animal.getEnergy() == healthiest.get(1).getEnergy()) {
+            if (animal.getEnergy() >= animals.get(1).getEnergy()) {
                 healthiest.add(animal);
             } else {
                 break;
@@ -114,25 +113,29 @@ class MapField {
         return healthiest;
     }
 
-    boolean plantAt() {
+    boolean isPlantAt() {
         return plant != null;
     }
 
-    public void setPlant(Plant plant) {
+    Optional<Plant> getPlantAt() {
+        return Optional.ofNullable(plant);
+    }
+
+    void setPlant(Plant plant) {
         if (this.plant != null) {
             throw new MapException("Cannot set plant at the field " + position);
         }
         this.plant = plant;
     }
 
-    public void removePlant() {
+    void removePlant() {
         if (this.plant == null) {
             throw new MapException("Cannot remove a plant from the field " + position);
         }
         this.plant = null;
     }
 
-    public Plant getPlant() {
+    Plant getPlant() {
         return plant;
     }
 
@@ -147,5 +150,31 @@ class MapField {
     @Override
     public int hashCode() {
         return Objects.hash(position);
+    }
+
+    boolean containsAnimalWithGenes(Collection<Gene> genes) {
+        if (animals.isEmpty()) {
+            return false;
+        }
+
+        for (var animal : animals) {
+            if (genes.contains(animal.getGene())) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    Animal getHealthiestAnimalWithGenes(Collection<Gene> genes) {
+        if (animals.isEmpty()) {
+            throw new MapException("Cannot get animal from field at which is no animal " + position);
+        }
+
+        for (var animal : animals) {
+            if (genes.contains(animal.getGene())) {
+                return animal;
+            }
+        }
+        throw new MapException("Unexpected error while searching for animals with genes");
     }
 }

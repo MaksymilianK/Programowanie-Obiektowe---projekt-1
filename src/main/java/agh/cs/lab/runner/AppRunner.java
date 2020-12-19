@@ -5,7 +5,6 @@ import agh.cs.lab.shared.Pair;
 import agh.cs.lab.shared.Rand;
 import agh.cs.lab.view.SimulationControlController;
 import agh.cs.lab.view.ViewManager;
-import javafx.animation.Animation;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
 import javafx.application.Platform;
@@ -31,20 +30,36 @@ public class AppRunner {
         viewManager.getSingleMapController().getControlController().onResume(this::resumeSingleSimulation);
         viewManager.getSingleMapController().getControlController().onPause(this::pauseSingleSimulation);
         viewManager.getSingleMapController().getControlController().onFinish(this::finishSingleSimulation);
+        viewManager.getSingleMapController().getControlController().onMostCommonGenes(this::drawMostCommonGenesSingle);
         viewManager.getSingleMapController().getControlController().onStatistics(this::writeStatistics);
 
         viewManager.getDoubleMapController().getFirstControlController().onResume(this::resumeFirstSimulation);
         viewManager.getDoubleMapController().getFirstControlController().onPause(this::pauseFirstSimulation);
         viewManager.getDoubleMapController().getFirstControlController().onFinish(this::finishFirstSimulation);
+        viewManager.getDoubleMapController().getFirstControlController().onMostCommonGenes(this::drawMostCommonGenesFirst);
         viewManager.getDoubleMapController().getFirstControlController().onStatistics(this::writeStatistics);
 
         viewManager.getDoubleMapController().getSecondControlController().onResume(this::resumeSecondSimulation);
         viewManager.getDoubleMapController().getSecondControlController().onPause(this::pauseSecondSimulation);
         viewManager.getDoubleMapController().getSecondControlController().onFinish(this::finishSecondSimulation);
+        viewManager.getDoubleMapController().getSecondControlController().onMostCommonGenes(this::drawMostCommonGenesSecond);
         viewManager.getDoubleMapController().getSecondControlController().onStatistics(this::writeStatistics);
 
         viewManager.showMenu();
         viewManager.show();
+    }
+
+    private void drawMostCommonGenesSingle() {
+        singleSimulation.drawMostCommonGenes();
+    }
+
+    private void drawMostCommonGenesFirst() {
+        firstSimulation.drawMostCommonGenes();
+
+    }
+
+    private void drawMostCommonGenesSecond() {
+        secondSimulation.drawMostCommonGenes();
     }
 
     private void prepareSingleSimulation(SimulationSettings settings) {

@@ -16,6 +16,7 @@ public class AnimalTracker {
 
     private int childrenCounter = 0;
     private int descendantsCounter = 0;
+    private boolean isDead = false;
 
     {
         snapshots.add(new AnimalTrackerSnapshot(0, 0));
@@ -41,13 +42,20 @@ public class AnimalTracker {
         }
     }
 
-    public boolean notifyAnimalDeath(Animal animal) {
+    public void notifyAnimalDeath(Animal animal) {
         if (animal == trackedAnimal) {
-            return true;
+            isDead = true;
         } else {
             livingDescendants.remove(animal);
-            return false;
         }
+    }
+
+    public Animal getTrackedAnimal() {
+        return trackedAnimal;
+    }
+
+    public boolean isDead() {
+        return isDead;
     }
 
     public AnimalTrackerSnapshot getSnapshot(int epoch) {

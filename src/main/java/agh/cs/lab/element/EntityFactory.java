@@ -1,7 +1,7 @@
 package agh.cs.lab.element;
 
 import agh.cs.lab.statistics.SimulationStatisticsManager;
-import agh.cs.lab.map.WorldMap;
+import agh.cs.lab.engine.map.WorldMap;
 
 public abstract class EntityFactory {
 

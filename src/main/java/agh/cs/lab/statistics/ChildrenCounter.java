@@ -35,7 +35,7 @@ public class ChildrenCounter {
 
     public float getAverageChildren() {
         if (totalChildren == 0) {
-            return 0;
+            return 0.0f;
         } else {
             return (float) totalChildren / (float) childrenCounter.size();
         }

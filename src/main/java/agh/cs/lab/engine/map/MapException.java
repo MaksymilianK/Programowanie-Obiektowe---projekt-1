@@ -1,4 +1,4 @@
-package agh.cs.lab.map;
+package agh.cs.lab.engine.map;
 
 public class MapException extends RuntimeException {
 

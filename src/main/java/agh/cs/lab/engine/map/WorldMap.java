@@ -1,7 +1,8 @@
-package agh.cs.lab.map;
+package agh.cs.lab.engine.map;
 
 import agh.cs.lab.element.animal.Animal;
 import agh.cs.lab.element.animal.AnimalObserver;
+import agh.cs.lab.element.animal.Gene;
 import agh.cs.lab.element.plant.Plant;
 import agh.cs.lab.element.plant.PlantObserver;
 import agh.cs.lab.shared.Direction;
@@ -10,6 +11,8 @@ import agh.cs.lab.shared.Pair;
 
 import java.util.*;
 import java.util.stream.Collectors;
+
+import static java.lang.Math.abs;
 
 public class WorldMap implements AnimalObserver, PlantObserver {
 
@@ -28,7 +31,7 @@ public class WorldMap implements AnimalObserver, PlantObserver {
 
     public Collection<Pair<Plant, List<Animal>>> getAnimalsToFeed() {
         return withAnimals.stream()
-                .filter(MapField::plantAt)
+                .filter(MapField::isPlantAt)
                 .map(field -> new Pair<>(field.getPlant(), field.getHealthiestAnimals()))
                 .collect(Collectors.toSet());
     }
@@ -46,7 +49,7 @@ public class WorldMap implements AnimalObserver, PlantObserver {
         for (int i = jungleBorders.first.x; i <= jungleBorders.second.x; i++) {
             for (int j = jungleBorders.first.y; j <= jungleBorders.second.y; j++) {
                 var position = new Vector2d(i, j);
-                if (!fields.get(position).animalAt() && !fields.get(position).plantAt()) {
+                if (!fields.get(position).animalAt() && !fields.get(position).isPlantAt()) {
                     fieldsInJungle.add(position);
                 }
             }
@@ -58,7 +61,7 @@ public class WorldMap implements AnimalObserver, PlantObserver {
         return fields.entrySet().stream()
                 .filter(entry -> !inJungle(entry.getKey()))
                 .filter(entry -> !entry.getValue().animalAt())
-                .filter(entry -> !entry.getValue().plantAt())
+                .filter(entry -> !entry.getValue().isPlantAt())
                 .map(Map.Entry::getKey)
                 .collect(Collectors.toList());
     }
@@ -154,6 +157,13 @@ public class WorldMap implements AnimalObserver, PlantObserver {
                 .collect(Collectors.toSet());
     }
 
+    public Set<Animal> getHealthiestAnimalsWithGenes(Collection<Gene> genes) {
+        return withAnimals.stream()
+                .filter(field -> field.containsAnimalWithGenes(genes))
+                .map(field -> field.getHealthiestAnimalWithGenes(genes))
+                .collect(Collectors.toSet());
+    }
+
     public Set<Plant> getPlants() {
         return withPlants.stream()
                 .map(MapField::getPlant)
@@ -167,19 +177,17 @@ public class WorldMap implements AnimalObserver, PlantObserver {
                 new Vector2d(width - 1, height - 1)
         );
 
-        int jungleWidth = (int) (width * Math.sqrt(jungleRatio));
-        int jungleHeight = (int) (height * Math.sqrt(jungleRatio));
-
-        if (jungleWidth % 2 != width % 2) {
-            jungleWidth++;
-        }
-        if (jungleHeight % 2 != height % 2) {
-            jungleHeight++;
-        }
+        var jungleSize = findBestJungleSize(width, height, jungleRatio);
 
         var jungleBorders = new Pair<>(
-                new Vector2d(width / 2 - jungleWidth / 2, height / 2 - jungleHeight / 2),
-                new Vector2d(width / 2 - jungleWidth / 2 + jungleWidth - 1, height / 2 - jungleHeight / 2 + jungleHeight - 1)
+                new Vector2d(
+                        width / 2 - jungleSize.first / 2,
+                        height / 2 - jungleSize.second / 2
+                ),
+                new Vector2d(
+                        width / 2 - jungleSize.first / 2 + jungleSize.first - 1,
+                        height / 2 - jungleSize.second / 2 + jungleSize.second - 1
+                )
         );
 
         var fields = new HashMap<Vector2d, MapField>();
@@ -194,8 +202,70 @@ public class WorldMap implements AnimalObserver, PlantObserver {
         return new WorldMap(mapBorders, jungleBorders, fields);
     }
 
+    private static Pair<Integer, Integer> findBestJungleSize(int width, int height, float jungleRatio) {
+        int jungleWidth = (int) Math.round(width * Math.sqrt(jungleRatio));
+        int jungleHeight = (int) Math.round(height * Math.sqrt(jungleRatio));
+
+        if (jungleWidth % 2 == width % 2 && jungleHeight % 2 == height % 2) {
+            return new Pair<>(jungleWidth, jungleHeight);
+        }
+
+        float expectedArea = jungleRatio * width * height;
+
+        if (jungleWidth % 2 != width % 2 && jungleHeight % 2 != height % 2) {
+            float subAddDifference = abs((jungleWidth - 1) * (jungleHeight + 1) - expectedArea);
+            float addSubDifference = abs((jungleWidth + 1) * (jungleHeight - 1) - expectedArea);
+
+            if (subAddDifference < addSubDifference) {
+                return new Pair<>(
+                        jungleWidth - 1,
+                        jungleHeight + 1
+                );
+            } else {
+                return new Pair<>(
+                        jungleWidth + 1,
+                        jungleHeight - 1
+                );
+            }
+        } else if (jungleWidth % 2 != width % 2) {
+            float subDifference = abs((jungleWidth - 1) * jungleHeight - expectedArea);
+            float addDifference = abs((jungleWidth + 1) * jungleHeight - expectedArea);
+
+            if (subDifference < addDifference) {
+                return new Pair<>(
+                        jungleWidth - 1,
+                        jungleHeight
+                );
+            } else {
+                return new Pair<>(
+                        jungleWidth + 1,
+                        jungleHeight
+                );
+            }
+        } else {
+            float subDifference = abs(jungleWidth * (jungleHeight - 1) - expectedArea);
+            float addDifference = abs(jungleWidth * (jungleHeight + 1) - expectedArea);
+
+            if (subDifference < addDifference) {
+                return new Pair<>(
+                        jungleWidth,
+                        jungleHeight - 1
+                );
+            } else {
+                return new Pair<>(
+                        jungleWidth,
+                        jungleHeight + 1
+                );
+            }
+        }
+    }
+
     public Optional<Animal> getAnimalAt(Vector2d position) {
         return fields.get(position).getHealthiestAnimal();
+    }
+
+    public Optional<Plant> getPlantAt(Vector2d position) {
+        return fields.get(position).getPlantAt();
     }
 
     private void placeAnimal(Animal animal) {

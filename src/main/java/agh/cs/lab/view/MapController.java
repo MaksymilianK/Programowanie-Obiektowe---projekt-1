@@ -11,6 +11,7 @@ import javafx.scene.image.Image;
 import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
 
+import java.util.Collection;
 import java.util.Set;
 import java.util.function.Consumer;
 
@@ -58,6 +59,58 @@ public class MapController implements Controller {
     public void redrawAnimals(Set<Animal> animals) {
         clearEntities();
         animals.forEach(this::drawAnimal);
+    }
+
+    public void drawTrackedAnimal(Animal animal) {
+        clearEntity(animal.getPosition());
+        drawAnimal(animal);
+
+        entitiesCtx.save();
+
+        entitiesCtx.setStroke(Color.BLUE);
+        entitiesCtx.setLineWidth(4);
+        entitiesCtx.strokeOval(
+                getFieldX(animal.getPosition()) + fieldSide * 0.1,
+                getFieldY(animal.getPosition()) + fieldSide * 0.1,
+                fieldSide * 0.8,
+                fieldSide * 0.8
+        );
+        entitiesCtx.restore();
+    }
+
+    public void drawAnimalsWithMostCommonGenes(Collection<Animal> animals) {
+        animals.forEach(this::drawAnimalWithMostCommonGenes);
+    }
+
+    public void redrawAnimal(Animal animal) {
+        clearEntity(animal.getPosition());
+        drawAnimal(animal);
+    }
+
+    private void drawAnimalWithMostCommonGenes(Animal animal) {
+        clearEntity(animal.getPosition());
+        drawAnimal(animal);
+
+        entitiesCtx.save();
+
+        entitiesCtx.setStroke(Color.RED);
+        entitiesCtx.setLineWidth(4);
+        entitiesCtx.strokeOval(
+                getFieldX(animal.getPosition()) + fieldSide * 0.1,
+                getFieldY(animal.getPosition()) + fieldSide * 0.1,
+                fieldSide * 0.8,
+                fieldSide * 0.8
+        );
+        entitiesCtx.restore();
+    }
+
+    private void clearEntity(Vector2d position) {
+        entitiesCtx.clearRect(
+                getFieldX(position),
+                getFieldY(position),
+                fieldSide,
+                fieldSide
+        );
     }
 
     public void drawPlants(Set<Plant> plants) {
