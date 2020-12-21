@@ -11,7 +11,8 @@ import agh.cs.lab.statistics.AnimalTracker;
 import agh.cs.lab.statistics.SimulationStatisticsManager;
 import agh.cs.lab.engine.map.WorldMap;
 import agh.cs.lab.shared.Rand;
-import agh.cs.lab.view.AnimalDetailsController;
+import agh.cs.lab.statistics.StatisticsSaver;
+import agh.cs.lab.view.AnimalTrackerController;
 import agh.cs.lab.view.SimulationControlController;
 import agh.cs.lab.view.SimulationStatisticsController;
 import agh.cs.lab.view.MapController;
@@ -32,7 +33,7 @@ public class SimulationRunner {
     private final MapController mapController;
     private final SimulationControlController controlController;
     private final SimulationStatisticsController statisticsController;
-    private final AnimalDetailsController animalDetailsController;
+    private final AnimalTrackerController animalDetailsController;
     private final SimulationEngine engine;
     private final SimulationStatisticsManager statistics;
 
@@ -41,7 +42,7 @@ public class SimulationRunner {
 
     private SimulationRunner(MapController mapView, SimulationControlController controlController,
                              SimulationStatisticsController statisticsController,
-                             AnimalDetailsController animalDetailsController, SimulationEngine engine,
+                             AnimalTrackerController animalDetailsController, SimulationEngine engine,
                              SimulationStatisticsManager statistics) {
         this.mapController = mapView;
         this.controlController = controlController;
@@ -60,7 +61,9 @@ public class SimulationRunner {
         //Must wait a fraction of second, because resizing does not occur immediately after showing a scene
         (new Timeline(
                 new KeyFrame(Duration.seconds(0.5), event -> {
-                    mapController.redrawFields(engine.getMapBorders(), engine.getMapJungleBorders());
+                    mapController.redrawFields(
+                            engine.getMapBorders(), engine.getMapJungleBorders(), engine.getSettings().getStartEnergy()
+                    );
                     mapController.redrawAnimals(engine.getAnimalsWithTopEnergy());
                     mapController.drawPlants(engine.getPlants());
                 })
@@ -145,7 +148,7 @@ public class SimulationRunner {
     }
 
     private void saveStatistics() {
-        statistics.save();
+        StatisticsSaver.saveTotal(engine.getCurrentEpoch(), statistics.getSnapshot());
     }
 
     private void firstPart() {
@@ -161,7 +164,6 @@ public class SimulationRunner {
         }
 
         drawAnimals();
-        mapController.drawPlants(engine.getPlants());
 
         statisticsController.setAverageEnergy(statistics.getAverageEnergy());
         statisticsController.setAverageChildren(statistics.getAverageChildren());
@@ -176,16 +178,15 @@ public class SimulationRunner {
         engine.moveAnimals();
 
         drawAnimals();
-        mapController.drawPlants(engine.getPlants());
 
         statisticsController.setAverageEnergy(statistics.getAverageEnergy());
     }
 
     private void thirdPart() {
-        engine.feedAnimals();
+        var eatenPlants = engine.feedAnimals();
 
         drawAnimals();
-        mapController.drawPlants(engine.getPlants());
+        mapController.clearPlants(eatenPlants);
 
         statisticsController.setAverageEnergy(statistics.getAverageEnergy());
         statisticsController.setLivingPlants(statistics.getLivingPlants());
@@ -193,8 +194,9 @@ public class SimulationRunner {
 
     private void fourthPart() {
         var animals = engine.procreate();
-        engine.addPlants();
+        var newPlants = engine.addPlants();
         engine.nextEpoch();
+        statistics.nextEpoch();
 
         if (animalTracker != null) {
             animalTracker.nextEpoch();
@@ -205,8 +207,9 @@ public class SimulationRunner {
         }
 
         drawAnimals();
-        mapController.drawPlants(engine.getPlants());
+        mapController.drawPlants(newPlants);
         statisticsController.setCurrentEpoch(engine.getCurrentEpoch());
+        statisticsController.setLivingPlants(statistics.getLivingPlants());
     }
 
     private void drawAnimals() {
@@ -229,7 +232,7 @@ public class SimulationRunner {
         private MapController mapController;
         private SimulationControlController controlController;
         private SimulationStatisticsController statisticsController;
-        private AnimalDetailsController animalDetailsController;
+        private AnimalTrackerController animalDetailsController;
         private SimulationSettings settings;
         private Rand rand;
 
@@ -248,7 +251,7 @@ public class SimulationRunner {
             return this;
         }
 
-        public Builder animalDetailsController(AnimalDetailsController animalDetailsController) {
+        public Builder animalDetailsController(AnimalTrackerController animalDetailsController) {
             this.animalDetailsController = animalDetailsController;
             return this;
         }

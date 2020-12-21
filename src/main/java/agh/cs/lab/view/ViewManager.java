@@ -53,6 +53,8 @@ public class ViewManager {
         currentView.reset();
         stage.setScene(controller.getScene());
         currentView = controller;
+        stage.hide();
+        stage.show();
     }
 
     public static ViewManager load(Stage stage, SimulationSettings settings) throws IOException {
@@ -62,6 +64,8 @@ public class ViewManager {
 
         stage.setScene(controllers.first.getScene());
         manager.currentView = controllers.first;
+        stage.hide();
+        stage.show();
 
         return manager;
     }
@@ -93,6 +97,5 @@ public class ViewManager {
         stage.setWidth(width);
         stage.setHeight(height);
         stage.setResizable(false);
-        stage.show();
     }
 }

@@ -20,28 +20,52 @@ public final class Vector2d {
         return new Vector2d(x, y);
     }
 
-    public boolean xPrecedes(Vector2d other) {
+    public boolean xPrecedesStrongly(Vector2d other) {
         return x < other.x;
     }
 
-    public boolean yPrecedes(Vector2d other) {
+    public boolean yPrecedesStrongly(Vector2d other) {
         return y < other.y;
     }
 
-    public boolean precedes(Vector2d other) {
-        return xPrecedes(other) && yPrecedes(other);
+    public boolean precedesStrongly(Vector2d other) {
+        return xPrecedesStrongly(other) && yPrecedesStrongly(other);
     }
 
-    public boolean xFollows(Vector2d other) {
+    public boolean xFollowsStrongly(Vector2d other) {
         return x > other.x;
     }
 
-    public boolean yFollows(Vector2d other) {
+    public boolean yFollowsStrongly(Vector2d other) {
         return y > other.y;
     }
 
-    public boolean follows(Vector2d other) {
-        return xFollows(other) && yFollows(other);
+    public boolean followsStrongly(Vector2d other) {
+        return xFollowsStrongly(other) && yFollowsStrongly(other);
+    }
+
+    public boolean xPrecedesWeakly(Vector2d other) {
+        return x <= other.x;
+    }
+
+    public boolean yPrecedesWeakly(Vector2d other) {
+        return y <= other.y;
+    }
+
+    public boolean precedesWeakly(Vector2d other) {
+        return xPrecedesWeakly(other) && yPrecedesWeakly(other);
+    }
+
+    public boolean xFollowsWeakly(Vector2d other) {
+        return x >= other.x;
+    }
+
+    public boolean yFollowsWeakly(Vector2d other) {
+        return y >= other.y;
+    }
+
+    public boolean followsWeakly(Vector2d other) {
+        return xFollowsWeakly(other) && yFollowsWeakly(other);
     }
 
     public Vector2d upperRight(Vector2d other) {

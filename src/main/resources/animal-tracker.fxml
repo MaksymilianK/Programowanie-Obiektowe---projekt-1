@@ -9,7 +9,7 @@
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.text.Font?>
 
-<GridPane xmlns:fx="http://javafx.com/fxml" fx:controller="agh.cs.lab.view.AnimalDetailsController"
+<GridPane xmlns:fx="http://javafx.com/fxml" fx:controller="agh.cs.lab.view.AnimalTrackerController"
           alignment="CENTER" vgap="20" hgap="30">
     <Label GridPane.rowIndex="0" GridPane.columnIndex="0" GridPane.rowSpan="1" GridPane.columnSpan="2">
         Śledzenie zwierzęcia

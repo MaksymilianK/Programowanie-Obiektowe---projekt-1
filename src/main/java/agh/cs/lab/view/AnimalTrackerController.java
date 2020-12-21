@@ -8,7 +8,7 @@ import javafx.scene.text.Text;
 
 import java.util.function.Consumer;
 
-public class AnimalDetailsController implements Controller {
+public class AnimalTrackerController implements Controller {
 
     @FXML
     private Text gene;
@@ -50,10 +50,18 @@ public class AnimalDetailsController implements Controller {
     }
 
     public void setRunning(boolean isRunning) {
-        if (epoch.getText().equals("")) {
-            startButton.setDisable(isRunning);
+        startButton.setDisable(true);
+
+        if (isRunning) {
+            interruptButton.setDisable(true);
+            return;
         }
-        interruptButton.setDisable(isRunning);
+
+        if (epoch.getText().isEmpty()) {
+            interruptButton.setDisable(true);
+        } else {
+            interruptButton.setDisable(false);
+        }
     }
 
     public void onInterrupt(Runnable onInterrupt) {
@@ -64,7 +72,7 @@ public class AnimalDetailsController implements Controller {
         this.gene.setText(gene.toString());
         epoch.setDisable(false);
         startButton.setDisable(false);
-        interruptButton.setDisable(false);
+        interruptButton.setDisable(true);
 
         deathEpoch.setText("Zyje");
     }

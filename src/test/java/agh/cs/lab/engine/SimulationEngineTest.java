@@ -53,7 +53,7 @@ public class SimulationEngineTest {
         assertThat(animals).hasSize(5);
         assertThat(engine.getPlants()).isEmpty();
         for (var animal : animals) {
-            assertThat(map.getAnimalAt(animal.getPosition())).isPresent();
+            assertThat(map.getHealthiestAnimalAt(animal.getPosition())).isPresent();
         }
     }
 

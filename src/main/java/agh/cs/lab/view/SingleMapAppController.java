@@ -26,7 +26,7 @@ public class SingleMapAppController extends PrimaryController {
     private SimulationStatisticsController statisticsController;
 
     @FXML
-    private AnimalDetailsController animalDetailsController;
+    private AnimalTrackerController animalDetailsController;
 
     public void onMenu(Runnable onMenu) {
         menuButton.setOnAction(event -> onMenu.run());
@@ -44,7 +44,7 @@ public class SingleMapAppController extends PrimaryController {
         return statisticsController;
     }
 
-    public AnimalDetailsController getAnimalDetailsController() {
+    public AnimalTrackerController getAnimalDetailsController() {
         return animalDetailsController;
     }
 

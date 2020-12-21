@@ -18,15 +18,15 @@ public class WorldMap implements AnimalObserver, PlantObserver {
 
     public final Pair<Vector2d, Vector2d> jungleBorders;
     public final Pair<Vector2d, Vector2d> mapBorders;
-    private final Map<Vector2d, MapField> fields;
+    private final Map<Vector2d, MapField> fields = new HashMap<>();
     private final Set<MapField> withAnimals = new HashSet<>();
     private final Set<MapField> withPlants = new HashSet<>();
+    private final Set<Vector2d> emptyInsideJungle = new HashSet<>();
+    private final Set<Vector2d> emptyOutsideJungle = new HashSet<>();
 
-    private WorldMap(Pair<Vector2d, Vector2d> mapBorders, Pair<Vector2d, Vector2d> jungleBorders,
-                    Map<Vector2d, MapField> fields) {
+    private WorldMap(Pair<Vector2d, Vector2d> mapBorders, Pair<Vector2d, Vector2d> jungleBorders) {
         this.jungleBorders = jungleBorders;
         this.mapBorders = mapBorders;
-        this.fields = fields;
     }
 
     public Collection<Pair<Plant, List<Animal>>> getAnimalsToFeed() {
@@ -44,26 +44,11 @@ public class WorldMap implements AnimalObserver, PlantObserver {
     }
 
     public List<Vector2d> getEmptyFieldsInsideJungle() {
-        var fieldsInJungle = new ArrayList<Vector2d>();
-
-        for (int i = jungleBorders.first.x; i <= jungleBorders.second.x; i++) {
-            for (int j = jungleBorders.first.y; j <= jungleBorders.second.y; j++) {
-                var position = new Vector2d(i, j);
-                if (!fields.get(position).animalAt() && !fields.get(position).isPlantAt()) {
-                    fieldsInJungle.add(position);
-                }
-            }
-        }
-        return fieldsInJungle;
+        return new ArrayList<>(emptyInsideJungle);
     }
 
     public List<Vector2d> getEmptyFieldsOutsideJungle() {
-        return fields.entrySet().stream()
-                .filter(entry -> !inJungle(entry.getKey()))
-                .filter(entry -> !entry.getValue().animalAt())
-                .filter(entry -> !entry.getValue().isPlantAt())
-                .map(Map.Entry::getKey)
-                .collect(Collectors.toList());
+        return new ArrayList<>(emptyOutsideJungle);
     }
 
     public List<Vector2d> getEmptyAdjacentFields(Vector2d centralPosition) {
@@ -81,16 +66,16 @@ public class WorldMap implements AnimalObserver, PlantObserver {
     public Vector2d getNewPosition(Vector2d currentPosition, Direction moveDirection) {
         var newPosition = currentPosition.add(moveDirection.toUnitVector());
 
-        if (newPosition.xPrecedes(mapBorders.first)) {
+        if (newPosition.xPrecedesStrongly(mapBorders.first)) {
             newPosition = newPosition.withX(mapBorders.second.x);
         }
-        if (newPosition.xFollows(mapBorders.second)) {
+        if (newPosition.xFollowsStrongly(mapBorders.second)) {
             newPosition = newPosition.withX(mapBorders.first.x);
         }
-        if (newPosition.yPrecedes(mapBorders.first)) {
+        if (newPosition.yPrecedesStrongly(mapBorders.first)) {
             newPosition = newPosition.withY(mapBorders.second.y);
         }
-        if (newPosition.yFollows(mapBorders.second)) {
+        if (newPosition.yFollowsStrongly(mapBorders.second)) {
             newPosition = newPosition.withY(mapBorders.first.y);
         }
 
@@ -142,6 +127,8 @@ public class WorldMap implements AnimalObserver, PlantObserver {
         fields.get(plant.getPosition()).setPlant(plant);
 
         withPlants.add(fields.get(plant.getPosition()));
+        emptyOutsideJungle.remove(plant.getPosition());
+        emptyInsideJungle.remove(plant.getPosition());
     }
 
     @Override
@@ -190,16 +177,26 @@ public class WorldMap implements AnimalObserver, PlantObserver {
                 )
         );
 
-        var fields = new HashMap<Vector2d, MapField>();
+        var map = new WorldMap(mapBorders, jungleBorders);
+        map.initFields();
+        return map;
+    }
+
+    private void initFields() {
+        int width = mapBorders.second.x - mapBorders.first.x + 1;
+        int height = mapBorders.second.y - mapBorders.first.y + 1;
 
         for (int x = 0; x < width; x++) {
             for (int y = 0; y < height; y++) {
                 var position = new Vector2d(x, y);
                 fields.put(position, new MapField(position));
+                if (inJungle(position)) {
+                    emptyInsideJungle.add(position);
+                } else {
+                    emptyOutsideJungle.add(position);
+                }
             }
         }
-
-        return new WorldMap(mapBorders, jungleBorders, fields);
     }
 
     private static Pair<Integer, Integer> findBestJungleSize(int width, int height, float jungleRatio) {
@@ -271,6 +268,8 @@ public class WorldMap implements AnimalObserver, PlantObserver {
     private void placeAnimal(Animal animal) {
         fields.get(animal.getPosition()).addAnimal(animal);
         withAnimals.add(fields.get(animal.getPosition()));
+        emptyInsideJungle.remove(animal.getPosition());
+        emptyOutsideJungle.remove(animal.getPosition());
     }
 
     private void removeAnimal(Animal animal, Vector2d position) {
@@ -278,10 +277,18 @@ public class WorldMap implements AnimalObserver, PlantObserver {
 
         if (!fields.get(position).animalAt()) {
             withAnimals.remove(fields.get(position));
+
+            if (!fields.get(position).isPlantAt()) {
+                if (inJungle(position)) {
+                    emptyInsideJungle.add(position);
+                } else {
+                    emptyOutsideJungle.add(position);
+                }
+            }
         }
     }
 
     private boolean inJungle(Vector2d position) {
-        return position.follows(jungleBorders.first) && position.precedes(jungleBorders.second);
+        return position.followsWeakly(jungleBorders.first) && position.precedesWeakly(jungleBorders.second);
     }
 }

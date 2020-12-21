@@ -208,9 +208,9 @@ public class WorldMapTest {
         map.onAnimalDead(animal1);
         map.onAnimalDead(animal2);
 
-        assertThat(map.getAnimalAt(new Vector2d(1, 1))).isPresent();
-        assertThat(map.getAnimalAt(new Vector2d(1, 1)).get()).isEqualTo(animal3);
-        assertThat(map.getAnimalAt(new Vector2d(2, 2))).isEmpty();
+        assertThat(map.getHealthiestAnimalAt(new Vector2d(1, 1))).isPresent();
+        assertThat(map.getHealthiestAnimalAt(new Vector2d(1, 1)).get()).isEqualTo(animal3);
+        assertThat(map.getHealthiestAnimalAt(new Vector2d(2, 2))).isEmpty();
     }
 
     @Test

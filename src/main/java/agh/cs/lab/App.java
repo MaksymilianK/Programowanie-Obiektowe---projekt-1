@@ -17,7 +17,7 @@ public class App extends Application {
         var defaultSettings = (new ObjectMapper()).readValue(
                getClass().getResource("/settings.json"), SimulationSettings.class);
 
-        var runner = AppRunner.create(
+        AppRunner.create(
                 ViewManager.load(stage, defaultSettings),
                 new Rand()
         );

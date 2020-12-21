@@ -26,7 +26,7 @@ public class DoubleMapAppController extends PrimaryController {
     private SimulationStatisticsController firstStatisticsController;
 
     @FXML
-    private AnimalDetailsController firstAnimalDetailsController;
+    private AnimalTrackerController firstAnimalDetailsController;
 
     @FXML
     private Button menuButton;
@@ -41,7 +41,7 @@ public class DoubleMapAppController extends PrimaryController {
     private SimulationStatisticsController secondStatisticsController;
 
     @FXML
-    private AnimalDetailsController secondAnimalDetailsController;
+    private AnimalTrackerController secondAnimalDetailsController;
 
     public void onMenu(Runnable onMenu) {
         menuButton.setOnAction(event -> onMenu.run());
@@ -59,7 +59,7 @@ public class DoubleMapAppController extends PrimaryController {
         return firstStatisticsController;
     }
 
-    public AnimalDetailsController getFirstAnimalDetailsController() {
+    public AnimalTrackerController getFirstAnimalDetailsController() {
         return firstAnimalDetailsController;
     }
 
@@ -75,7 +75,7 @@ public class DoubleMapAppController extends PrimaryController {
         return secondStatisticsController;
     }
 
-    public AnimalDetailsController getSecondAnimalDetailsController() {
+    public AnimalTrackerController getSecondAnimalDetailsController() {
         return secondAnimalDetailsController;
     }
 

@@ -24,28 +24,23 @@ public class MapController implements Controller {
     private Canvas fields;
 
     @FXML
-    private Canvas entities;
+    private Canvas animals;
+
+    @FXML
+    private Canvas plants;
 
     private GraphicsContext fieldsCtx;
-    private GraphicsContext entitiesCtx;
+    private GraphicsContext animalsCtx;
+    private GraphicsContext plantsCtx;
     private double fieldSide;
-    private Image animalImage;
+    private Image[] animalImages = new Image[6];
     private Image plantImage;
     private Consumer<Vector2d> onClick;
+    private int startEnergy;
 
-    public void clearAnimals2(Collection<Animal> animals) {
-        animals.forEach(animal -> clearEntity(animal.getPosition()));
-    }
+    public void redrawFields(Pair<Vector2d, Vector2d> mapBorders, Pair<Vector2d, Vector2d> jungleBorders, int startEnergy) {
+        this.startEnergy = startEnergy;
 
-    public void drawAnimals2(Collection<Animal> animals) {
-        animals.forEach(this::redrawAnimal);
-    }
-
-    public void drawPlants2(Collection<Plant> plants) {
-        plants.forEach(this::drawPlant);
-    }
-
-    public void redrawFields(Pair<Vector2d, Vector2d> mapBorders, Pair<Vector2d, Vector2d> jungleBorders) {
         int mapWidth = mapBorders.second.x + 1;
         int mapHeight = mapBorders.second.y + 1;
 
@@ -54,8 +49,7 @@ public class MapController implements Controller {
         for (int i = 0; i < mapWidth; i++) {
             for (int j = 0; j < mapHeight; j++) {
                 var position = new Vector2d(i, j);
-                if (i >= jungleBorders.first.x && i <= jungleBorders.second.x &&
-                        j >= jungleBorders.first.y && j <= jungleBorders.second.y) {
+                if (position.followsWeakly(jungleBorders.first) && position.precedesWeakly(jungleBorders.second)) {
                     drawJungleField(position);
                 } else {
                     drawSawannaField(position);
@@ -64,29 +58,23 @@ public class MapController implements Controller {
         }
     }
 
+    public void clearPlants(Collection<Plant> plants) {
+        plants.forEach(this::clearPlant);
+    }
+
     public void onClick(Consumer<Vector2d> onClick) {
         this.onClick = onClick;
     }
 
     public void redrawAnimals(Set<Animal> animals) {
-        clearEntities();
+        clearAnimals();
         animals.forEach(this::drawAnimal);
     }
 
     public void drawTrackedAnimal(Animal animal) {
         drawAnimal(animal);
 
-        entitiesCtx.save();
-
-        entitiesCtx.setStroke(Color.BLUE);
-        entitiesCtx.setLineWidth(4);
-        entitiesCtx.strokeOval(
-                getFieldX(animal.getPosition()) + fieldSide * 0.1,
-                getFieldY(animal.getPosition()) + fieldSide * 0.1,
-                fieldSide * 0.8,
-                fieldSide * 0.8
-        );
-        entitiesCtx.restore();
+        drawCircleAroundAnimal(Color.BLUE, animal.getPosition());
     }
 
     public void redrawAnimalsWithMostCommonGenes(Collection<Animal> animals) {
@@ -94,37 +82,11 @@ public class MapController implements Controller {
     }
 
     public void redrawAnimal(Animal animal) {
-        clearEntity(animal.getPosition());
+        clearAnimal(animal.getPosition());
         drawAnimal(animal);
     }
 
-    private void redrawAnimalWithMostCommonGenes(Animal animal) {
-        clearEntity(animal.getPosition());
-        drawAnimal(animal);
-
-        entitiesCtx.save();
-
-        entitiesCtx.setStroke(Color.RED);
-        entitiesCtx.setLineWidth(4);
-        entitiesCtx.strokeOval(
-                getFieldX(animal.getPosition()) + fieldSide * 0.1,
-                getFieldY(animal.getPosition()) + fieldSide * 0.1,
-                fieldSide * 0.8,
-                fieldSide * 0.8
-        );
-        entitiesCtx.restore();
-    }
-
-    private void clearEntity(Vector2d position) {
-        entitiesCtx.clearRect(
-                getFieldX(position),
-                getFieldY(position),
-                fieldSide,
-                fieldSide
-        );
-    }
-
-    public void drawPlants(Set<Plant> plants) {
+    public void drawPlants(Collection<Plant> plants) {
         plants.forEach(this::drawPlant);
     }
 
@@ -134,8 +96,58 @@ public class MapController implements Controller {
 
         fields.setWidth(width);
         fields.setHeight(height);
-        entities.setWidth(width);
-        entities.setHeight(height);
+        animals.setWidth(width);
+        animals.setHeight(height);
+        plants.setWidth(width);
+        plants.setHeight(height);
+    }
+
+    @Override
+    public void reset() {
+        clearFields();
+        clearAnimals();
+        clearPlants();
+    }
+
+    @Override
+    public void init() {
+        fieldsCtx = fields.getGraphicsContext2D();
+        animalsCtx = animals.getGraphicsContext2D();
+        plantsCtx = plants.getGraphicsContext2D();
+
+        fieldsCtx.setStroke(Color.BLACK);
+
+        animalImages[0] = new Image("/animal-1.png");
+        animalImages[1] = new Image("/animal-2.png");
+        animalImages[2] = new Image("/animal-3.png");
+        animalImages[3] = new Image("/animal-4.png");
+        animalImages[4] = new Image("/animal-5.png");
+        animalImages[5] = new Image("/animal-6.png");
+
+        plantImage = new Image("/plant.png");
+
+        plants.setOnMouseClicked(event ->
+                onClick.accept(new Vector2d(
+                        (int) (event.getX() / fieldSide),
+                        (int) ((fields.getHeight() - event.getY()) / fieldSide)
+                ))
+        );
+    }
+
+    private void redrawAnimalWithMostCommonGenes(Animal animal) {
+        clearAnimal(animal.getPosition());
+        drawAnimal(animal);
+
+        drawCircleAroundAnimal(Color.RED, animal.getPosition());
+    }
+
+    private void clearAnimal(Vector2d position) {
+        animalsCtx.clearRect(
+                getFieldX(position),
+                getFieldY(position),
+                fieldSide,
+                fieldSide
+        );
     }
 
     private void setFieldSide(double mapWidth, double mapHeight) {
@@ -149,8 +161,10 @@ public class MapController implements Controller {
 
         fields.setWidth(fieldSide * mapWidth);
         fields.setHeight(fieldSide * mapHeight);
-        entities.setWidth(fieldSide * mapWidth);
-        entities.setHeight(fieldSide * mapHeight);
+        animals.setWidth(fieldSide * mapWidth);
+        animals.setHeight(fieldSide * mapHeight);
+        plants.setWidth(fieldSide * mapWidth);
+        plants.setHeight(fieldSide * mapHeight);
         container.setPrefWidth(fieldSide * mapWidth);
         container.setPrefHeight(fieldSide * mapHeight);
     }
@@ -171,27 +185,48 @@ public class MapController implements Controller {
     }
 
     private void drawAnimal(Animal animal) {
-        entitiesCtx.save();
+        animalsCtx.save();
 
-        entitiesCtx.translate(
+        animalsCtx.translate(
                 getFieldCentreX(animal.getPosition()),
                 getFieldCentreY(animal.getPosition())
         );
-        entitiesCtx.rotate(animal.getOrientation().ordinal() * 45);
+        animalsCtx.rotate(animal.getOrientation().ordinal() * 45);
 
-        entitiesCtx.drawImage(
-                animalImage,
+        animalsCtx.drawImage(
+                getAnimalImage(animal),
                 -fieldSide / 2,
                 -fieldSide / 2,
                 fieldSide,
                 fieldSide
         );
 
-        entitiesCtx.restore();
+        animalsCtx.restore();
+    }
+
+    private Image getAnimalImage(Animal animal) {
+        int index = (int) ((float) animal.getEnergy() / ((float) startEnergy / (float) 5));
+        if (index > 5) {
+            index = 5;
+        }
+        return animalImages[index];
+    }
+
+    private void drawCircleAroundAnimal(Color colour, Vector2d position) {
+        animalsCtx.save();
+        animalsCtx.setStroke(colour);
+        animalsCtx.setLineWidth(4);
+        animalsCtx.strokeOval(
+                getFieldX(position) + fieldSide * 0.1,
+                getFieldY(position) + fieldSide * 0.1,
+                fieldSide * 0.8,
+                fieldSide * 0.8
+        );
+        animalsCtx.restore();
     }
 
     private void drawPlant(Plant plant) {
-        entitiesCtx.drawImage(
+        plantsCtx.drawImage(
                 plantImage,
                 getFieldX(plant.getPosition()),
                 getFieldY(plant.getPosition()),
@@ -220,31 +255,20 @@ public class MapController implements Controller {
         fieldsCtx.clearRect(0, 0, fields.getWidth(), fields.getHeight());
     }
 
-    private void clearEntities() {
-        entitiesCtx.clearRect(0, 0, entities.getWidth(), entities.getHeight());
+    private void clearAnimals() {
+        animalsCtx.clearRect(0, 0, animals.getWidth(), animals.getHeight());
     }
 
-    @Override
-    public void reset() {
-        clearFields();
-        clearEntities();
+    private void clearPlants() {
+        plantsCtx.clearRect(0, 0, plants.getWidth(), plants.getHeight());
     }
 
-    @Override
-    public void init() {
-        fieldsCtx = fields.getGraphicsContext2D();
-        entitiesCtx = entities.getGraphicsContext2D();
-
-        fieldsCtx.setStroke(Color.BLACK);
-
-        animalImage = new Image("/animal.png");
-        plantImage = new Image("/plant.png");
-
-        entities.setOnMouseClicked(event ->
-            onClick.accept(new Vector2d(
-                    (int) (event.getX() / fieldSide),
-                    (int) ((fields.getHeight() - event.getY()) / fieldSide)
-            ))
+    private void clearPlant(Plant plant) {
+        plantsCtx.clearRect(
+                getFieldX(plant.getPosition()),
+                getFieldY(plant.getPosition()),
+                fieldSide,
+                fieldSide
         );
     }
 }

@@ -15,72 +15,40 @@ public class SimulationStatisticsManager implements AnimalObserver, PlantObserve
 
     private final GenesCounter genesCounter = new GenesCounter();
     private final ChildrenCounter childrenCounter = new ChildrenCounter();
-    private final Map<Integer, SimulationStatisticsSnapshot> snapshots = new HashMap<>();
+    private final GenesCounter totalGenesCounter = new GenesCounter();
 
     private int livingAnimals = 0;
     private int deadAnimals = 0;
     private int livingPlants = 0;
     private int livingAnimalEnergy = 0;
     private int deadAnimalsEpochLived = 0;
+    private int totalLivingAnimals = 0;
+    private int totalLivingPlants = 0;
+    private float totalAverageEnergy = 0;
+    private float totalAverageLifeTime = 0;
+    private float totalAverageChildren = 0;
+    private int epochs = 0;
 
-    /*public SimulationStatisticsManager(StatisticsSaver saver) {
-        this.saver = saver;
-    }*/
-
-   /* public void save(int toEpoch) {
-        var snapshots = this.snapshots.entrySet().stream()
-                .filter(entry -> entry.getKey() <= toEpoch)
-                .collect(Collectors.toSet());
-
-        int totalLivingAnimals = 0;
-        int totalLivingPlants = 0;
-        var genesCounter = new HashMap<Gene, Integer>();
-        float totalAverageAnimalEnergy = 0;
-        int totalAnimalLifeTime = 0;
-        float totalAverageChildren = 0;
-
-        for (var entry : snapshots) {
-            totalLivingAnimals += entry.getValue().getLivingAnimals();
-            totalLivingPlants += entry.getValue().getLivingPlants();
-            genesCounter.
-            totalAverageAnimalEnergy += entry.getValue().getAverageEnergy();
-            totalAnimalLifeTime += entry.getValue().getAverageLifeTime();
-            totalAverageChildren += entry.getValue().getAverageChildren();
-        }
-
-        saver.saveAverage(
-                totalLivingAnimals / (float) snapshots.size(),
-                totalLivingPlants / (float) snapshots.size(),
-                totalLivingAnimals / (float) snapshots.size(),
-                totalAverageAnimalEnergy / (float) snapshots.size(),
-                totalAnimalLifeTime / (float) snapshots.size(),
-                totalAverageChildren / (float) snapshots.size()
-        );
-    }*/
-
-    public void nextEpoch(int epoch) {
-        snapshots.put(
-                epoch,
-                SimulationStatisticsSnapshot.builder()
-                        .livingAnimals(getLivingAnimals())
-                        .livingPlants(getLivingPlants())
-                        .genes(genesCounter.getAll())
-                        .averageEnergy(getAverageEnergy())
-                        .averageLifeTime(getAverageLifeTime())
-                        .averageChildren(getAverageChildren())
-                        .build()
-        );
+    public void nextEpoch() {
+        epochs++;
+        totalLivingAnimals += getLivingAnimals();
+        totalLivingPlants += getLivingPlants();
+        totalAverageEnergy += getAverageEnergy();
+        totalAverageLifeTime += getAverageLifeTime();
+        totalAverageChildren += getAverageChildren();
     }
 
     @Override
     public void onAnimalCreated(Animal animal) {
         childrenCounter.addAnimal(animal);
+        totalGenesCounter.add(animal.getGene());
         onNewAnimal(animal);
     }
 
     @Override
     public void onAnimalBorn(Animal animal, Animal parent1, Animal parent2) {
         childrenCounter.addChild(animal, parent1, parent2);
+        totalGenesCounter.add(animal.getGene());
         onNewAnimal(animal);
     }
 
@@ -155,19 +123,51 @@ public class SimulationStatisticsManager implements AnimalObserver, PlantObserve
         return childrenCounter.getAverageChildren();
     }
 
-    public SimulationStatisticsSnapshot getSnapshot(int epoch) {
-        if (!snapshots.containsKey(epoch)) {
-            throw new SimulationStatisticsException("There are no statistics for the epoch " + epoch);
-        }
-        return snapshots.get(epoch);
-    }
-
     private void onNewAnimal(Animal animal) {
         genesCounter.add(animal.getGene());
         livingAnimals++;
         livingAnimalEnergy += animal.getEnergy();
     }
 
-    public void save() {
+    public SimulationStatisticsSnapshot getSnapshot() {
+        float averageLivingAnimals = 0;
+        if (epochs != 0) {
+            averageLivingAnimals = (float) totalLivingAnimals / (float) epochs;
+        }
+
+        float averageLivingPlants = 0;
+        if (epochs != 0) {
+            averageLivingPlants = (float) totalLivingPlants / (float) epochs;
+        }
+
+        Gene mostCommonGene = null;
+        var mostCommonGeneList = totalGenesCounter.getMostCommonGenes(1);
+        if (!mostCommonGeneList.isEmpty()) {
+            mostCommonGene = mostCommonGeneList.get(0).first;
+        }
+
+        float averageEnergy = 0;
+        if (epochs != 0) {
+            averageEnergy = totalAverageEnergy / (float) epochs;
+        }
+
+        float averageLifeTime = 0;
+        if (epochs != 0) {
+            averageLifeTime = totalAverageLifeTime / (float) epochs;
+        }
+
+        float averageChildren = 0;
+        if (epochs != 0) {
+            averageChildren = totalAverageChildren / (float) epochs;
+        }
+
+        return SimulationStatisticsSnapshot.builder()
+                .totalLivingAnimals(averageLivingAnimals)
+                .totalLivingPlants(averageLivingPlants)
+                .totalMostCommonGene(mostCommonGene)
+                .totalAverageEnergy(averageEnergy)
+                .totalAverageLifeTime(averageLifeTime)
+                .totalAverageChildren(averageChildren)
+                .build();
     }
 }

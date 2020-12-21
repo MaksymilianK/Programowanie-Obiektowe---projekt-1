@@ -95,7 +95,7 @@ public class AppRunner {
 
     private void resizeDoubleMap() {
         resizingTimeline = new Timeline(
-                new KeyFrame(Duration.seconds(0.5), event -> {
+                new KeyFrame(Duration.seconds(2), event -> {
                     viewManager.getDoubleMapController().setMapsSize();
                     firstSimulation.draw();
                     secondSimulation.draw();

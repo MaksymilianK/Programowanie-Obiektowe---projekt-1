@@ -30,7 +30,7 @@
             <Separator/>
             <fx:include source="simulation-statistics.fxml" fx:id="firstStatistics"/>
             <Separator/>
-            <fx:include source="selected-animal-details.fxml" fx:id="firstAnimalDetails"/>
+            <fx:include source="animal-tracker.fxml" fx:id="firstAnimalDetails"/>
         </HBox>
     </ScrollPane>
 
@@ -47,7 +47,7 @@
             <Separator/>
             <fx:include source="simulation-statistics.fxml" fx:id="secondStatistics"/>
             <Separator/>
-            <fx:include source="selected-animal-details.fxml" fx:id="secondAnimalDetails"/>
+            <fx:include source="animal-tracker.fxml" fx:id="secondAnimalDetails"/>
         </HBox>
     </ScrollPane>
 

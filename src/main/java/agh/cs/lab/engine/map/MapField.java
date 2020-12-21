@@ -34,6 +34,10 @@ class MapField {
         animals.add(index, newAnimal);
     }
 
+    Vector2d getPosition() {
+        return position;
+    }
+
     void removeAnimal(Animal animal) {
         animals.remove(animal);
     }

@@ -3,49 +3,48 @@ package agh.cs.lab.statistics;
 import agh.cs.lab.element.animal.Gene;
 import agh.cs.lab.shared.ObjectCreationException;
 
-import java.util.Map;
-
 public class SimulationStatisticsSnapshot {
 
-    private final int livingAnimals;
-    private final int livingPlants;
-    private final Map<Gene, Integer> genes;
-    private final float averageEnergy;
-    private final float averageLifeTime;
-    private final float averageChildren;
+    private final float totalAverageLivingAnimals;
+    private final float totalAverageLivingPlants;
+    private final String totalMostCommonGene;
+    private final float totalAverageEnergy;
+    private final float totalAverageLifeTime;
+    private final float totalAverageChildren;
 
-    public SimulationStatisticsSnapshot(int livingAnimals, int livingPlants, Map<Gene, Integer> genes,
-                                        float averageEnergy, float averageLifeTime, float averageChildren) {
-        this.livingAnimals = livingAnimals;
-        this.livingPlants = livingPlants;
-        this.genes = genes;
-        this.averageEnergy = averageEnergy;
-        this.averageLifeTime = averageLifeTime;
-        this.averageChildren = averageChildren;
+    public SimulationStatisticsSnapshot(float totalAverageLivingAnimals, float totalAverageLivingPlants,
+                                        String totalMostCommonGene, float totalAverageEnergy, float totalAverageLifeTime,
+                                        float totalAverageChildren) {
+        this.totalAverageLivingAnimals = totalAverageLivingAnimals;
+        this.totalAverageLivingPlants = totalAverageLivingPlants;
+        this.totalMostCommonGene = totalMostCommonGene;
+        this.totalAverageEnergy = totalAverageEnergy;
+        this.totalAverageLifeTime = totalAverageLifeTime;
+        this.totalAverageChildren = totalAverageChildren;
     }
 
-    public int getLivingAnimals() {
-        return livingAnimals;
+    public float getTotalAverageLivingAnimals() {
+        return totalAverageLivingAnimals;
     }
 
-    public int getLivingPlants() {
-        return livingPlants;
+    public float getTotalAverageLivingPlants() {
+        return totalAverageLivingPlants;
     }
 
-    public Map<Gene, Integer> getGenes() {
-        return genes;
+    public String getTotalMostCommonGene() {
+        return totalMostCommonGene;
     }
 
-    public float getAverageEnergy() {
-        return averageEnergy;
+    public float getTotalAverageEnergy() {
+        return totalAverageEnergy;
     }
 
-    public float getAverageLifeTime() {
-        return averageLifeTime;
+    public float getTotalAverageLifeTime() {
+        return totalAverageLifeTime;
     }
 
-    public float getAverageChildren() {
-        return averageChildren;
+    public float getTotalAverageChildren() {
+        return totalAverageChildren;
     }
 
     public static Builder builder() {
@@ -54,51 +53,53 @@ public class SimulationStatisticsSnapshot {
 
     public static class Builder {
 
-        private Integer livingAnimals;
-        private Integer livingPlants;
-        private Map<Gene, Integer> genes;
-        private Float averageEnergy;
-        private Float averageLifeTime;
-        private Float averageChildren;
+        private Float totalAverageLivingAnimals;
+        private Float totalAverageLivingPlants;
+        private Gene totalMostCommonGene;
+        private Float totalAverageEnergy;
+        private Float totalAverageLifeTime;
+        private Float totalAverageChildren;
 
-        public Builder livingAnimals(int livingAnimals) {
-            this.livingAnimals = livingAnimals;
+        public Builder totalLivingAnimals(float totalAverageLivingAnimals) {
+            this.totalAverageLivingAnimals = totalAverageLivingAnimals;
             return this;
         }
 
-        public Builder livingPlants(int livingPlants) {
-            this.livingPlants = livingPlants;
+        public Builder totalLivingPlants(float totalAverageLivingPlants) {
+            this.totalAverageLivingPlants = totalAverageLivingPlants;
             return this;
         }
 
-        public Builder genes(Map<Gene, Integer> genes) {
-            this.genes = genes;
+        public Builder totalMostCommonGene(Gene totalMostCommonGene) {
+            this.totalMostCommonGene = totalMostCommonGene;
             return this;
         }
 
-        public Builder averageEnergy(float averageEnergy) {
-            this.averageEnergy = averageEnergy;
+        public Builder totalAverageEnergy(float totalAverageEnergy) {
+            this.totalAverageEnergy = totalAverageEnergy;
             return this;
         }
 
-        public Builder averageLifeTime(float averageLifeTime) {
-            this.averageLifeTime = averageLifeTime;
+        public Builder totalAverageLifeTime(float totalAverageLifeTime) {
+            this.totalAverageLifeTime = totalAverageLifeTime;
             return this;
         }
 
-        public Builder averageChildren(float averageChildren) {
-            this.averageChildren = averageChildren;
+        public Builder totalAverageChildren(float totalAverageChildren) {
+            this.totalAverageChildren = totalAverageChildren;
             return this;
         }
 
         public SimulationStatisticsSnapshot build() {
-            if (livingAnimals == null || livingPlants == null || genes == null || averageEnergy == null
-                    || averageLifeTime == null || averageChildren == null) {
+            if (totalAverageLivingAnimals == null || totalAverageLivingPlants == null || totalAverageEnergy == null
+                    || totalAverageLifeTime == null || totalAverageChildren == null) {
                 throw new ObjectCreationException("Cannot create a simulation snapshot; some of fields are nulls");
             }
 
-            return new SimulationStatisticsSnapshot(livingAnimals, livingPlants, Map.copyOf(genes), averageEnergy,
-                    averageLifeTime, averageChildren);
+            String mostCommonGeneStr = totalMostCommonGene == null ? "-" : totalMostCommonGene.toString();
+
+            return new SimulationStatisticsSnapshot(totalAverageLivingAnimals, totalAverageLivingPlants,
+                    mostCommonGeneStr, totalAverageEnergy, totalAverageLifeTime, totalAverageChildren);
         }
     }
 }
