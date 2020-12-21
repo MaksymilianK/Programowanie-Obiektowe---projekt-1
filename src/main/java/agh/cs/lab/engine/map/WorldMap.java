@@ -82,6 +82,14 @@ public class WorldMap implements AnimalObserver, PlantObserver {
         return newPosition;
     }
 
+    public Optional<Animal> getHealthiestAnimalAt(Vector2d position) {
+        return fields.get(position).getHealthiestAnimal();
+    }
+
+    public Optional<Plant> getPlantAt(Vector2d position) {
+        return fields.get(position).getPlantAt();
+    }
+
     public Pair<Vector2d, Vector2d> getMapBorders() {
         return mapBorders;
     }
@@ -157,6 +165,32 @@ public class WorldMap implements AnimalObserver, PlantObserver {
                 .collect(Collectors.toSet());
     }
 
+    private void placeAnimal(Animal animal) {
+        fields.get(animal.getPosition()).addAnimal(animal);
+        withAnimals.add(fields.get(animal.getPosition()));
+        emptyInsideJungle.remove(animal.getPosition());
+        emptyOutsideJungle.remove(animal.getPosition());
+    }
+
+    private void removeAnimal(Animal animal, Vector2d position) {
+        fields.get(position).removeAnimal(animal);
+
+        if (!fields.get(position).animalAt()) {
+            withAnimals.remove(fields.get(position));
+
+            if (!fields.get(position).isPlantAt()) {
+                if (inJungle(position)) {
+                    emptyInsideJungle.add(position);
+                } else {
+                    emptyOutsideJungle.add(position);
+                }
+            }
+        }
+    }
+
+    private boolean inJungle(Vector2d position) {
+        return position.followsWeakly(jungleBorders.first) && position.precedesWeakly(jungleBorders.second);
+    }
 
     public static WorldMap create(int width, int height, float jungleRatio) {
         var mapBorders = new Pair<>(
@@ -255,40 +289,5 @@ public class WorldMap implements AnimalObserver, PlantObserver {
                 );
             }
         }
-    }
-
-    public Optional<Animal> getHealthiestAnimalAt(Vector2d position) {
-        return fields.get(position).getHealthiestAnimal();
-    }
-
-    public Optional<Plant> getPlantAt(Vector2d position) {
-        return fields.get(position).getPlantAt();
-    }
-
-    private void placeAnimal(Animal animal) {
-        fields.get(animal.getPosition()).addAnimal(animal);
-        withAnimals.add(fields.get(animal.getPosition()));
-        emptyInsideJungle.remove(animal.getPosition());
-        emptyOutsideJungle.remove(animal.getPosition());
-    }
-
-    private void removeAnimal(Animal animal, Vector2d position) {
-        fields.get(position).removeAnimal(animal);
-
-        if (!fields.get(position).animalAt()) {
-            withAnimals.remove(fields.get(position));
-
-            if (!fields.get(position).isPlantAt()) {
-                if (inJungle(position)) {
-                    emptyInsideJungle.add(position);
-                } else {
-                    emptyOutsideJungle.add(position);
-                }
-            }
-        }
-    }
-
-    private boolean inJungle(Vector2d position) {
-        return position.followsWeakly(jungleBorders.first) && position.precedesWeakly(jungleBorders.second);
     }
 }

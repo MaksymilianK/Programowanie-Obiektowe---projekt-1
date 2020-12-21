@@ -74,16 +74,16 @@ public class SimulationStatisticsController implements Controller {
         });
     }
 
-    public void setAverageEnergy(float averageEnergy) {
-        this.averageEnergy.setText(Float.toString(averageEnergy));
+    public void setAverageEnergy(double averageEnergy) {
+        this.averageEnergy.setText(Double.toString(averageEnergy));
     }
 
-    public void setAverageLifeTime(float averageLifeTime) {
-        this.averageLifeTime.setText(Float.toString(averageLifeTime));
+    public void setAverageLifeTime(double averageLifeTime) {
+        this.averageLifeTime.setText(Double.toString(averageLifeTime));
     }
 
-    public void setAverageChildren(float averageChildren) {
-        this.averageChildren.setText(Float.toString(averageChildren));
+    public void setAverageChildren(double averageChildren) {
+        this.averageChildren.setText(Double.toString(averageChildren));
     }
 
     public void setRunning(boolean isRunning) {

@@ -28,27 +28,6 @@ public class SimulationEngine {
         this.rand = rand;
     }
 
-    public static SimulationEngine create(SimulationSettings settings, WorldMap map, EntityFactoryFacade entityFactory,
-                                          Rand rand, int startAnimals) {
-        var emptyFields = map.getEmptyFieldsInsideJungle();
-        emptyFields.addAll(map.getEmptyFieldsOutsideJungle());
-
-        if (emptyFields.size() < startAnimals) {
-            throw new SimulationException("Cannot create so many animals on simulation start - there is too few fields " +
-                    "available");
-        }
-
-        var engine = new SimulationEngine(settings, map, entityFactory, rand);
-
-        for (int i = 0; i < startAnimals; i++) {
-            int index = rand.randInt(emptyFields.size());
-            engine.animals.add(entityFactory.createAnimal(emptyFields.get(index)));
-            emptyFields.remove(index);
-        }
-
-        return engine;
-    }
-
     public SimulationSettings getSettings() {
         return settings;
     }
@@ -128,10 +107,11 @@ public class SimulationEngine {
                 childPosition = adjacentFields.get(rand.randInt(adjacentFields.size()));
             }
 
+            var child = entityFactory.giveBirthToAnimal(childPosition, parent1, parent2);
+
             parent1.subtractEnergy(parent1.getEnergy() / 4);
             parent2.subtractEnergy(parent2.getEnergy() / 4);
 
-            var child = entityFactory.giveBirthToAnimal(childPosition, parent1, parent2);
             this.animals.add(child);
             newChildren.add(new Trio<>(child, parent1, parent2));
         });
@@ -202,5 +182,26 @@ public class SimulationEngine {
             newOrientation = newOrientation.next();
         }
         return newOrientation;
+    }
+
+    public static SimulationEngine create(SimulationSettings settings, WorldMap map, EntityFactoryFacade entityFactory,
+                                          Rand rand, int startAnimals) {
+        var emptyFields = map.getEmptyFieldsInsideJungle();
+        emptyFields.addAll(map.getEmptyFieldsOutsideJungle());
+
+        if (emptyFields.size() < startAnimals) {
+            throw new SimulationException("Cannot create so many animals on simulation start - there is too few fields " +
+                    "available");
+        }
+
+        var engine = new SimulationEngine(settings, map, entityFactory, rand);
+
+        for (int i = 0; i < startAnimals; i++) {
+            int index = rand.randInt(emptyFields.size());
+            engine.animals.add(entityFactory.createAnimal(emptyFields.get(index)));
+            emptyFields.remove(index);
+        }
+
+        return engine;
     }
 }

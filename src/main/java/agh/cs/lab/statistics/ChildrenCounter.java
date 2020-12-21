@@ -33,11 +33,11 @@ public class ChildrenCounter {
         totalChildren -= childrenCounter.remove(animal);
     }
 
-    public float getAverageChildren() {
+    public double getAverageChildren() {
         if (totalChildren == 0) {
             return 0.0f;
         } else {
-            return (float) totalChildren / (float) childrenCounter.size();
+            return (double) totalChildren / (double) childrenCounter.size();
         }
     }
 }

@@ -17,6 +17,8 @@ import java.util.function.Consumer;
 
 public class MapController implements Controller {
 
+    private static int MIN_FIELD_SIDE = 25;
+
     @FXML
     private StackPane container;
 
@@ -38,6 +40,22 @@ public class MapController implements Controller {
     private Consumer<Vector2d> onClick;
     private int startEnergy;
 
+    public void setViewSize(double width, double height) {
+        container.setPrefWidth(width);
+        container.setPrefHeight(height);
+
+        fields.setWidth(width);
+        fields.setHeight(height);
+        animals.setWidth(width);
+        animals.setHeight(height);
+        plants.setWidth(width);
+        plants.setHeight(height);
+    }
+
+    public void onClick(Consumer<Vector2d> onClick) {
+        this.onClick = onClick;
+    }
+
     public void redrawFields(Pair<Vector2d, Vector2d> mapBorders, Pair<Vector2d, Vector2d> jungleBorders, int startEnergy) {
         this.startEnergy = startEnergy;
 
@@ -56,14 +74,6 @@ public class MapController implements Controller {
                 }
             }
         }
-    }
-
-    public void clearPlants(Collection<Plant> plants) {
-        plants.forEach(this::clearPlant);
-    }
-
-    public void onClick(Consumer<Vector2d> onClick) {
-        this.onClick = onClick;
     }
 
     public void redrawAnimals(Set<Animal> animals) {
@@ -90,16 +100,8 @@ public class MapController implements Controller {
         plants.forEach(this::drawPlant);
     }
 
-    public void setViewSize(double width, double height) {
-        container.setPrefWidth(width);
-        container.setPrefHeight(height);
-
-        fields.setWidth(width);
-        fields.setHeight(height);
-        animals.setWidth(width);
-        animals.setHeight(height);
-        plants.setWidth(width);
-        plants.setHeight(height);
+    public void clearPlants(Collection<Plant> plants) {
+        plants.forEach(this::clearPlant);
     }
 
     @Override
@@ -134,29 +136,13 @@ public class MapController implements Controller {
         );
     }
 
-    private void redrawAnimalWithMostCommonGenes(Animal animal) {
-        clearAnimal(animal.getPosition());
-        drawAnimal(animal);
-
-        drawCircleAroundAnimal(Color.RED, animal.getPosition());
-    }
-
-    private void clearAnimal(Vector2d position) {
-        animalsCtx.clearRect(
-                getFieldX(position),
-                getFieldY(position),
-                fieldSide,
-                fieldSide
-        );
-    }
-
     private void setFieldSide(double mapWidth, double mapHeight) {
         double widthRatio = container.getPrefWidth() / mapWidth;
         double heightRatio = container.getPrefHeight() / mapHeight;
 
         fieldSide = Math.max(widthRatio, heightRatio);
-        if (fieldSide < 25) {
-            fieldSide = 25;
+        if (fieldSide < MIN_FIELD_SIDE) {
+            fieldSide = MIN_FIELD_SIDE;
         }
 
         fields.setWidth(fieldSide * mapWidth);
@@ -182,6 +168,22 @@ public class MapController implements Controller {
     private void drawField(Vector2d position) {
         fieldsCtx.fillRect(getFieldX(position), getFieldY(position), fieldSide, fieldSide);
         fieldsCtx.strokeRect(getFieldX(position), getFieldY(position), fieldSide, fieldSide);
+    }
+
+    private void redrawAnimalWithMostCommonGenes(Animal animal) {
+        clearAnimal(animal.getPosition());
+        drawAnimal(animal);
+
+        drawCircleAroundAnimal(Color.RED, animal.getPosition());
+    }
+
+    private void clearAnimal(Vector2d position) {
+        animalsCtx.clearRect(
+                getFieldX(position),
+                getFieldY(position),
+                fieldSide,
+                fieldSide
+        );
     }
 
     private void drawAnimal(Animal animal) {

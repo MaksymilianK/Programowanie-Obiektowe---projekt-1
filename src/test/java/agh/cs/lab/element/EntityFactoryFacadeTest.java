@@ -2,7 +2,6 @@ package agh.cs.lab.element;
 
 import agh.cs.lab.element.animal.Animal;
 import agh.cs.lab.element.animal.AnimalFactory;
-import agh.cs.lab.element.animal.Gene;
 import agh.cs.lab.element.animal.GeneFactory;
 import agh.cs.lab.element.plant.PlantFactory;
 import agh.cs.lab.engine.map.WorldMap;
@@ -12,8 +11,6 @@ import agh.cs.lab.shared.Vector2d;
 import agh.cs.lab.statistics.SimulationStatisticsManager;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.RepeatedTest;
-
-import java.util.ArrayList;
 import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -81,7 +78,7 @@ public class EntityFactoryFacadeTest {
         var animal = factory.giveBirthToAnimal(new Vector2d(1, 2), animal1, animal2);
 
         assertThat(animal.getId()).isEqualTo(1);
-        assertThat(animal.getEnergy()).isEqualTo(10);
+        assertThat(animal.getEnergy()).isEqualTo(24);
         assertThat(animal.getGene().getSequence()).hasSize(32);
         assertThat(animal.getGene().getSequence()).containsOnly(0, 1, 2, 3, 4, 5, 6, 7);
         assertThat(animal.getGene().getSequence()).contains(0, 1, 2, 3, 4, 5, 6, 7);

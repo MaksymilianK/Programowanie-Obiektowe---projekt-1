@@ -11,7 +11,7 @@ public class Plant extends Entity {
     private final Vector2d position;
     private final Set<PlantObserver> observers = new HashSet<>();
 
-    Plant(int id, Vector2d position) {
+    private Plant(int id, Vector2d position) {
         super(id);
         this.position = position;
     }

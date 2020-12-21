@@ -23,7 +23,7 @@
     <Label text="Energia z rośliny" GridPane.rowIndex="4" GridPane.columnIndex="0"/>
     <TextField fx:id="plantEnergy" GridPane.rowIndex="4" GridPane.columnIndex="1"/>
 
-    <Label text="Rozmiar dżungli" GridPane.rowIndex="5" GridPane.columnIndex="0"/>
+    <Label text="Proporcja dżungli do mapy" GridPane.rowIndex="5" GridPane.columnIndex="0"/>
     <TextField fx:id="jungleRatio" GridPane.rowIndex="5" GridPane.columnIndex="1"/>
 
     <Button fx:id="singleSimulationButton" text="Pojedyncza symulacja"

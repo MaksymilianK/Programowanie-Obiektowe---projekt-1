@@ -5,16 +5,16 @@ import agh.cs.lab.shared.ObjectCreationException;
 
 public class SimulationStatisticsSnapshot {
 
-    private final float totalAverageLivingAnimals;
-    private final float totalAverageLivingPlants;
+    private final double totalAverageLivingAnimals;
+    private final double totalAverageLivingPlants;
     private final String totalMostCommonGene;
-    private final float totalAverageEnergy;
-    private final float totalAverageLifeTime;
-    private final float totalAverageChildren;
+    private final double totalAverageEnergy;
+    private final double totalAverageLifeTime;
+    private final double totalAverageChildren;
 
-    public SimulationStatisticsSnapshot(float totalAverageLivingAnimals, float totalAverageLivingPlants,
-                                        String totalMostCommonGene, float totalAverageEnergy, float totalAverageLifeTime,
-                                        float totalAverageChildren) {
+    private SimulationStatisticsSnapshot(double totalAverageLivingAnimals, double totalAverageLivingPlants,
+                                        String totalMostCommonGene, double totalAverageEnergy, double totalAverageLifeTime,
+                                        double totalAverageChildren) {
         this.totalAverageLivingAnimals = totalAverageLivingAnimals;
         this.totalAverageLivingPlants = totalAverageLivingPlants;
         this.totalMostCommonGene = totalMostCommonGene;
@@ -23,11 +23,11 @@ public class SimulationStatisticsSnapshot {
         this.totalAverageChildren = totalAverageChildren;
     }
 
-    public float getTotalAverageLivingAnimals() {
+    public double getTotalAverageLivingAnimals() {
         return totalAverageLivingAnimals;
     }
 
-    public float getTotalAverageLivingPlants() {
+    public double getTotalAverageLivingPlants() {
         return totalAverageLivingPlants;
     }
 
@@ -35,15 +35,15 @@ public class SimulationStatisticsSnapshot {
         return totalMostCommonGene;
     }
 
-    public float getTotalAverageEnergy() {
+    public double getTotalAverageEnergy() {
         return totalAverageEnergy;
     }
 
-    public float getTotalAverageLifeTime() {
+    public double getTotalAverageLifeTime() {
         return totalAverageLifeTime;
     }
 
-    public float getTotalAverageChildren() {
+    public double getTotalAverageChildren() {
         return totalAverageChildren;
     }
 
@@ -53,19 +53,21 @@ public class SimulationStatisticsSnapshot {
 
     public static class Builder {
 
-        private Float totalAverageLivingAnimals;
-        private Float totalAverageLivingPlants;
+        private Double totalAverageLivingAnimals;
+        private Double totalAverageLivingPlants;
         private Gene totalMostCommonGene;
-        private Float totalAverageEnergy;
-        private Float totalAverageLifeTime;
-        private Float totalAverageChildren;
+        private Double totalAverageEnergy;
+        private Double totalAverageLifeTime;
+        private Double totalAverageChildren;
 
-        public Builder totalLivingAnimals(float totalAverageLivingAnimals) {
+        Builder() {}
+
+        public Builder totalLivingAnimals(double totalAverageLivingAnimals) {
             this.totalAverageLivingAnimals = totalAverageLivingAnimals;
             return this;
         }
 
-        public Builder totalLivingPlants(float totalAverageLivingPlants) {
+        public Builder totalLivingPlants(double totalAverageLivingPlants) {
             this.totalAverageLivingPlants = totalAverageLivingPlants;
             return this;
         }
@@ -75,17 +77,17 @@ public class SimulationStatisticsSnapshot {
             return this;
         }
 
-        public Builder totalAverageEnergy(float totalAverageEnergy) {
+        public Builder totalAverageEnergy(double totalAverageEnergy) {
             this.totalAverageEnergy = totalAverageEnergy;
             return this;
         }
 
-        public Builder totalAverageLifeTime(float totalAverageLifeTime) {
+        public Builder totalAverageLifeTime(double totalAverageLifeTime) {
             this.totalAverageLifeTime = totalAverageLifeTime;
             return this;
         }
 
-        public Builder totalAverageChildren(float totalAverageChildren) {
+        public Builder totalAverageChildren(double totalAverageChildren) {
             this.totalAverageChildren = totalAverageChildren;
             return this;
         }

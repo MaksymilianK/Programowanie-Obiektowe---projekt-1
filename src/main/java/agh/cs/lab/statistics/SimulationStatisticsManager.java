@@ -20,8 +20,8 @@ public class SimulationStatisticsManager implements AnimalObserver, PlantObserve
     private int livingAnimals = 0;
     private int deadAnimals = 0;
     private int livingPlants = 0;
-    private int livingAnimalEnergy = 0;
-    private int deadAnimalsEpochLived = 0;
+    private long livingAnimalEnergy = 0;
+    private long deadAnimalsEpochLived = 0;
     private int totalLivingAnimals = 0;
     private int totalLivingPlants = 0;
     private float totalAverageEnergy = 0;
@@ -103,7 +103,7 @@ public class SimulationStatisticsManager implements AnimalObserver, PlantObserve
         return genesCounter.getMostCommonGenes();
     }
 
-    public float getAverageEnergy() {
+    public double getAverageEnergy() {
         if (livingAnimals == 0) {
             return 0.0f;
         } else {
@@ -111,7 +111,7 @@ public class SimulationStatisticsManager implements AnimalObserver, PlantObserve
         }
     }
 
-    public float getAverageLifeTime() {
+    public double getAverageLifeTime() {
         if (deadAnimals == 0) {
             return 0.0f;
         } else {
@@ -119,7 +119,7 @@ public class SimulationStatisticsManager implements AnimalObserver, PlantObserve
         }
     }
 
-    public float getAverageChildren() {
+    public double getAverageChildren() {
         return childrenCounter.getAverageChildren();
     }
 
@@ -130,14 +130,14 @@ public class SimulationStatisticsManager implements AnimalObserver, PlantObserve
     }
 
     public SimulationStatisticsSnapshot getSnapshot() {
-        float averageLivingAnimals = 0;
+        double averageLivingAnimals = 0;
         if (epochs != 0) {
-            averageLivingAnimals = (float) totalLivingAnimals / (float) epochs;
+            averageLivingAnimals = (double) totalLivingAnimals / (double) epochs;
         }
 
-        float averageLivingPlants = 0;
+        double averageLivingPlants = 0;
         if (epochs != 0) {
-            averageLivingPlants = (float) totalLivingPlants / (float) epochs;
+            averageLivingPlants = (double) totalLivingPlants / (double) epochs;
         }
 
         Gene mostCommonGene = null;
@@ -146,19 +146,19 @@ public class SimulationStatisticsManager implements AnimalObserver, PlantObserve
             mostCommonGene = mostCommonGeneList.get(0).first;
         }
 
-        float averageEnergy = 0;
+        double averageEnergy = 0;
         if (epochs != 0) {
-            averageEnergy = totalAverageEnergy / (float) epochs;
+            averageEnergy = totalAverageEnergy / (double) epochs;
         }
 
-        float averageLifeTime = 0;
+        double averageLifeTime = 0;
         if (epochs != 0) {
-            averageLifeTime = totalAverageLifeTime / (float) epochs;
+            averageLifeTime = totalAverageLifeTime / (double) epochs;
         }
 
-        float averageChildren = 0;
+        double averageChildren = 0;
         if (epochs != 0) {
-            averageChildren = totalAverageChildren / (float) epochs;
+            averageChildren = totalAverageChildren / (double) epochs;
         }
 
         return SimulationStatisticsSnapshot.builder()

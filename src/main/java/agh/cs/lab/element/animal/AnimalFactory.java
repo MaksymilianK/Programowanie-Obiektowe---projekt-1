@@ -44,7 +44,7 @@ public class AnimalFactory extends EntityFactory {
                 position,
                 genesFactory.create(parent1.getGene(), parent2.getGene()),
                 randomOrientation(),
-                startEnergy,
+                parent1.getEnergy() / 4 + parent2.getEnergy() / 4,
                 parent1,
                 parent2,
                 Set.of(map, statistics)

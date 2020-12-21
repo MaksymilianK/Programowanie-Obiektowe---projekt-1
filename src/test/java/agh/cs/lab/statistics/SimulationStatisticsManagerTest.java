@@ -52,6 +52,15 @@ public class SimulationStatisticsManagerTest {
         var animal3 = Animal.create(
                 3,
                 new Vector2d(2, 1),
+                gene1,
+                Direction.WEST,
+                36,
+                Set.of()
+        );
+
+        var animal4 = Animal.create(
+                4,
+                new Vector2d(2, 1),
                 gene2,
                 Direction.WEST,
                 36,
@@ -64,27 +73,29 @@ public class SimulationStatisticsManagerTest {
         statistics.onAnimalCreated(animal1);
         statistics.onAnimalCreated(animal2);
         statistics.onAnimalBorn(animal3, animal1, animal2);
+        statistics.onAnimalBorn(animal4, animal1, animal2);
         statistics.onPlantCreated(plant1);
         statistics.onPlantCreated(plant2);
 
         assertThat(statistics.getAverageChildren()).isEqualTo(1);
-        assertThat(statistics.getAverageEnergy()).isEqualTo(32);
+        assertThat(statistics.getAverageEnergy()).isEqualTo(33);
         assertThat(statistics.getLivingPlants()).isEqualTo(2);
-        assertThat(statistics.getLivingAnimals()).isEqualTo(3);
+        assertThat(statistics.getLivingAnimals()).isEqualTo(4);
         assertThat(statistics.getAverageLifeTime()).isEqualTo(0);
         assertThat(statistics.getMostCommonGenes()).containsOnly(gene1);
-        assertThat(statistics.getMostCommonGenes(2)).containsOnly(new Pair<>(gene1, 2), new Pair<>(gene2, 1));
+        assertThat(statistics.getMostCommonGenes(4)).containsOnly(new Pair<>(gene1, 3), new Pair<>(gene2, 1));
 
-        animal2.addEpochToLife();
-        statistics.onAnimalDead(animal2);
+        animal3.addEpochToLife();
+        statistics.onAnimalDead(animal3);
+        statistics.onAnimalDead(animal4);
         statistics.onPlantEaten(plant1);
 
-        assertThat(statistics.getAverageChildren()).isEqualTo(1);
-        assertThat(statistics.getAverageEnergy()).isEqualTo(38);
+        assertThat(statistics.getAverageChildren()).isEqualTo(2);
+        assertThat(statistics.getAverageEnergy()).isEqualTo(30);
         assertThat(statistics.getLivingPlants()).isEqualTo(1);
         assertThat(statistics.getLivingAnimals()).isEqualTo(2);
-        assertThat(statistics.getAverageLifeTime()).isEqualTo(1);
-        assertThat(statistics.getMostCommonGenes()).containsOnly(gene1, gene2);
-        assertThat(statistics.getMostCommonGenes(2)).containsOnly(new Pair<>(gene1, 1), new Pair<>(gene2, 1));
+        assertThat(statistics.getAverageLifeTime()).isEqualTo(0.5d);
+        assertThat(statistics.getMostCommonGenes()).containsOnly(gene1);
+        assertThat(statistics.getMostCommonGenes(2)).containsOnly(new Pair<>(gene1, 2));
     }
 }

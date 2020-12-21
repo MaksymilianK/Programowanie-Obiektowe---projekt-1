@@ -236,6 +236,8 @@ public class SimulationRunner {
         private SimulationSettings settings;
         private Rand rand;
 
+        Builder() {}
+
         public Builder mapController(MapController mapController) {
             this.mapController = mapController;
             return this;

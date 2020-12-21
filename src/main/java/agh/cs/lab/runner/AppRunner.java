@@ -16,7 +16,7 @@ public class AppRunner {
     private SimulationRunner secondSimulation;
     private Timeline resizingTimeline;
 
-    public AppRunner(ViewManager viewManager) {
+    private AppRunner(ViewManager viewManager) {
         this.viewManager = viewManager;
     }
 
