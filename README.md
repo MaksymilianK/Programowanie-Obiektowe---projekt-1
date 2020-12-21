@@ -33,7 +33,7 @@ wielokrotnie większą od ekranu), zajmuje bardzo dużo miejsca w pamięci karty
 
 Kolejną kwestią wartą skomentowania jest sposób obliczania powierzchni dżungli. Pozwoliłem sobie z powodów estetycznych
 na ustalenie dodatkowej zasady, że dżungla musi znajdować się idealnie na środku mapy. Tzn. na przykład dla mapy
-```7x15``` i ```jungleRatio=0.2``` idealna byłaby dżungla 4x8. Ale ponieważ 7 i 15 są liczbami nieparzystymi, a 4 i 8
+```7x15``` i ```jungleRatio=0.3``` idealna byłaby dżungla 4x8. Ale ponieważ 7 i 15 są liczbami nieparzystymi, a 4 i 8
 parzystymi, dżungla nie mogłaby znajdować sie idealnie na środku mapy. Dlatego mój algorytm ustali dżunglę na 5x7.
 Innymi słowy, algorytm dobiera taką szerokość i wysokość dżungli, żeby dało się ja umieścić idealnie na środku i żeby
 proporcja powierzchni dżungli do powierzchni mapy był najbliższy ```jungleRatio```.
