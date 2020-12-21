@@ -50,16 +50,19 @@ public class AnimalTrackerController implements Controller {
     }
 
     public void setRunning(boolean isRunning) {
-        startButton.setDisable(true);
-
         if (isRunning) {
+            startButton.setDisable(true);
             interruptButton.setDisable(true);
             return;
         }
 
-        if (epoch.getText().isEmpty()) {
+        if (gene.getText().isEmpty()) {
+            startButton.setDisable(true);
             interruptButton.setDisable(true);
         } else {
+            if (epoch.getText().isEmpty()) {
+                startButton.setDisable(false);
+            }
             interruptButton.setDisable(false);
         }
     }
