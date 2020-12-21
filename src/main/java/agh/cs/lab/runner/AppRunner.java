@@ -1,181 +1,120 @@
 package agh.cs.lab.runner;
 
 import agh.cs.lab.engine.SimulationSettings;
-import agh.cs.lab.shared.Pair;
 import agh.cs.lab.shared.Rand;
-import agh.cs.lab.view.SimulationControlController;
 import agh.cs.lab.view.ViewManager;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
-import javafx.application.Platform;
 import javafx.util.Duration;
 
 public class AppRunner {
 
-    private final Rand rand = new Rand();
     private final ViewManager viewManager;
 
     private SimulationRunner singleSimulation;
     private SimulationRunner firstSimulation;
     private SimulationRunner secondSimulation;
+    private Timeline resizingTimeline;
 
     public AppRunner(ViewManager viewManager) {
         this.viewManager = viewManager;
     }
 
-    public void run() {
-        viewManager.getMenu().onSingleSimulationChoice(this::prepareSingleSimulation);
-        viewManager.getMenu().onDoubleSimulationChoice(this::prepareDoubleSimulation);
-
-        viewManager.getSingleMapController().getControlController().onResume(this::resumeSingleSimulation);
-        viewManager.getSingleMapController().getControlController().onPause(this::pauseSingleSimulation);
-        viewManager.getSingleMapController().getControlController().onFinish(this::finishSingleSimulation);
-        viewManager.getSingleMapController().getControlController().onMostCommonGenes(this::drawMostCommonGenesSingle);
-        viewManager.getSingleMapController().getControlController().onStatistics(this::writeStatistics);
-
-        viewManager.getDoubleMapController().getFirstControlController().onResume(this::resumeFirstSimulation);
-        viewManager.getDoubleMapController().getFirstControlController().onPause(this::pauseFirstSimulation);
-        viewManager.getDoubleMapController().getFirstControlController().onFinish(this::finishFirstSimulation);
-        viewManager.getDoubleMapController().getFirstControlController().onMostCommonGenes(this::drawMostCommonGenesFirst);
-        viewManager.getDoubleMapController().getFirstControlController().onStatistics(this::writeStatistics);
-
-        viewManager.getDoubleMapController().getSecondControlController().onResume(this::resumeSecondSimulation);
-        viewManager.getDoubleMapController().getSecondControlController().onPause(this::pauseSecondSimulation);
-        viewManager.getDoubleMapController().getSecondControlController().onFinish(this::finishSecondSimulation);
-        viewManager.getDoubleMapController().getSecondControlController().onMostCommonGenes(this::drawMostCommonGenesSecond);
-        viewManager.getDoubleMapController().getSecondControlController().onStatistics(this::writeStatistics);
+    private void onMenu() {
+        if (resizingTimeline != null) {
+            resizingTimeline.stop();
+            resizingTimeline = null;
+        }
 
         viewManager.showMenu();
-        viewManager.show();
+
+        if (singleSimulation != null) {
+            singleSimulation.finish();
+            singleSimulation = null;
+        } else if (firstSimulation != null) {
+            firstSimulation.finish();
+            secondSimulation.finish();
+            firstSimulation = null;
+            secondSimulation = null;
+        }
+
+        singleSimulation = null;
+        firstSimulation = null;
+        secondSimulation = null;
     }
 
-    private void drawMostCommonGenesSingle() {
-        singleSimulation.drawMostCommonGenes();
-    }
-
-    private void drawMostCommonGenesFirst() {
-        firstSimulation.drawMostCommonGenes();
-
-    }
-
-    private void drawMostCommonGenesSecond() {
-        secondSimulation.drawMostCommonGenes();
-    }
-
-    private void prepareSingleSimulation(SimulationSettings settings) {
-        singleSimulation = createSingleSimulationRunner(settings);
+    private void createSingleSimulation(SimulationSettings settings, Rand rand) {
         viewManager.showSingleMapApp();
 
-        Platform.runLater(() -> {
-            viewManager.getSingleMapController().setMapSize();
-            singleSimulation.afterPreparation();
-        });
+        singleSimulation = SimulationRunner.builder()
+                .mapController(viewManager.getSingleMapController().getMapController())
+                .controlController(viewManager.getSingleMapController().getControlController())
+                .statisticsController(viewManager.getSingleMapController().getStatisticsController())
+                .animalDetailsController(viewManager.getSingleMapController().getAnimalDetailsController())
+                .settings(settings)
+                .rand(rand)
+                .build();
+
+        resizeSingleMap();
     }
 
-    private void prepareDoubleSimulation(SimulationSettings settings) {
+    private void createDoubleSimulation(SimulationSettings settings, Rand rand) {
         viewManager.showDoubleMapApp();
 
-        var runners = createDoubleSimulationRunners(settings);
-        firstSimulation = runners.first;
-        secondSimulation = runners.second;
+        firstSimulation = SimulationRunner.builder()
+                .mapController(viewManager.getDoubleMapController().getFirstMapController())
+                .controlController(viewManager.getDoubleMapController().getFirstControlController())
+                .statisticsController(viewManager.getDoubleMapController().getFirstStatisticsController())
+                .animalDetailsController(viewManager.getDoubleMapController().getFirstAnimalDetailsController())
+                .settings(settings)
+                .rand(rand)
+                .build();
 
-        var a = new Timeline(
-                new KeyFrame(Duration.seconds(1), action -> {
-                    viewManager.getDoubleMapController().setMapsSize();
-                    firstSimulation.afterPreparation();
-                    secondSimulation.afterPreparation();
+        secondSimulation = SimulationRunner.builder()
+                .mapController(viewManager.getDoubleMapController().getSecondMapController())
+                .controlController(viewManager.getDoubleMapController().getSecondControlController())
+                .statisticsController(viewManager.getDoubleMapController().getSecondStatisticsController())
+                .animalDetailsController(viewManager.getDoubleMapController().getSecondAnimalDetailsController())
+                .settings(settings)
+                .rand(rand)
+                .build();
+
+        resizeDoubleMap();
+    }
+
+    private void resizeSingleMap() {
+        resizingTimeline = new Timeline(
+                new KeyFrame(Duration.seconds(0.5), event -> {
+                    viewManager.getSingleMapController().setMapSize();
+                    singleSimulation.draw();
+                    resizingTimeline = null;
                 })
         );
-        a.play();
+        resizingTimeline.play();
     }
 
-    private void resumeSingleSimulation(double speed) {
-        resumeSimulation(singleSimulation, viewManager.getSingleMapController().getControlController(), speed);
-    }
-
-    private void resumeFirstSimulation(double speed) {
-        resumeSimulation(firstSimulation, viewManager.getDoubleMapController().getFirstControlController(), speed);
-    }
-
-    private void resumeSecondSimulation(double speed) {
-        resumeSimulation(secondSimulation, viewManager.getDoubleMapController().getSecondControlController(), speed);
-    }
-
-    private void pauseSingleSimulation() {
-        pauseSimulation(singleSimulation, viewManager.getSingleMapController().getControlController());
-    }
-
-    private void pauseFirstSimulation() {
-        pauseSimulation(firstSimulation, viewManager.getDoubleMapController().getFirstControlController());
-    }
-
-    private void pauseSecondSimulation() {
-        pauseSimulation(secondSimulation, viewManager.getDoubleMapController().getSecondControlController());
-    }
-
-    private void finishSingleSimulation() {
-        singleSimulation = null;
-        finishSimulation();
-    }
-
-    private void finishFirstSimulation() {
-        firstSimulation = null;
-        finishSimulation();
-    }
-
-    private void finishSecondSimulation() {
-        secondSimulation = null;
-        finishSimulation();
-    }
-
-    private void resumeSimulation(SimulationRunner runner, SimulationControlController control, double speed) {
-        runner.setSpeed(speed);
-        runner.resume();
-        control.setRunning(true);
-    }
-
-    private void pauseSimulation(SimulationRunner runner, SimulationControlController control) {
-        control.setRunning(false);
-        runner.pause();
-    }
-
-    private void finishSimulation() {
-        viewManager.showMenu();
-    }
-
-    private SimulationRunner createSingleSimulationRunner(SimulationSettings settings) {
-        var runner = SimulationRunner.prepare(
-                settings,
-                viewManager.getSingleMapController().getMapController(),
-                viewManager.getSingleMapController().getStatisticsController(),
-                viewManager.getSingleMapController().getAnimalDetailsController(),
-                rand
+    private void resizeDoubleMap() {
+        resizingTimeline = new Timeline(
+                new KeyFrame(Duration.seconds(0.5), event -> {
+                    viewManager.getDoubleMapController().setMapsSize();
+                    firstSimulation.draw();
+                    secondSimulation.draw();
+                    resizingTimeline = null;
+                })
         );
-        runner.init();
+        resizingTimeline.play();
+    }
+
+    private void prepareEventHandlers(Rand rand) {
+        viewManager.getMenu().onSingleSimulationChoice(settings -> createSingleSimulation(settings, rand));
+        viewManager.getMenu().onDoubleSimulationChoice(settings -> createDoubleSimulation(settings, rand));
+        viewManager.getSingleMapController().onMenu(this::onMenu);
+        viewManager.getDoubleMapController().onMenu(this::onMenu);
+    }
+
+    public static AppRunner create(ViewManager viewManager, Rand rand) {
+        var runner = new AppRunner(viewManager);
+        runner.prepareEventHandlers(rand);
         return runner;
-    }
-
-    private Pair<SimulationRunner, SimulationRunner> createDoubleSimulationRunners(SimulationSettings settings) {
-        var first = SimulationRunner.prepare(
-                settings,
-                viewManager.getDoubleMapController().getFirstMapController(),
-                viewManager.getDoubleMapController().getFirstStatisticsController(),
-                viewManager.getDoubleMapController().getFirstAnimalDetailsController(),
-                rand
-        );
-        var second = SimulationRunner.prepare(
-                settings,
-                viewManager.getDoubleMapController().getSecondMapController(),
-                viewManager.getDoubleMapController().getSecondStatisticsController(),
-                viewManager.getDoubleMapController().getSecondAnimalDetailsController(),
-                rand
-        );
-        first.init();
-        second.init();
-        return new Pair<>(first, second);
-    }
-
-    private void writeStatistics() {
-        //todo
     }
 }

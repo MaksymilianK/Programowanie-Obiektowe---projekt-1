@@ -260,7 +260,7 @@ public class WorldMap implements AnimalObserver, PlantObserver {
         }
     }
 
-    public Optional<Animal> getAnimalAt(Vector2d position) {
+    public Optional<Animal> getHealthiestAnimalAt(Vector2d position) {
         return fields.get(position).getHealthiestAnimal();
     }
 

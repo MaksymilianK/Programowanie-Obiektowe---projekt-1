@@ -59,13 +59,13 @@ public class SimulationEngine {
         return currentEpoch;
     }
 
-    public Set<Animal> checkAnimalsEnergy() {
+    public Set<Animal> removeDeadAnimals() {
         var deadAnimals = new HashSet<Animal>();
 
         var iterator = animals.iterator();
         while (iterator.hasNext()) {
             var animal = iterator.next();
-            if (animal.getEnergy() <= 0) {
+            if (animal.getEnergy() < settings.getMoveEnergy()) {
                 animal.kill();
                 deadAnimals.add(animal);
                 iterator.remove();
@@ -147,8 +147,8 @@ public class SimulationEngine {
         return map.getJungleBorders();
     }
 
-    public Optional<Animal> getAnimalAt(Vector2d position) {
-        return map.getAnimalAt(position);
+    public Optional<Animal> getHealthiestAnimalAt(Vector2d position) {
+        return map.getHealthiestAnimalAt(position);
     }
 
     public Set<Animal> getAnimalsWithGenes(Collection<Gene> genes) {

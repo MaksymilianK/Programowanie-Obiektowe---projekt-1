@@ -33,6 +33,18 @@ public class MapController implements Controller {
     private Image plantImage;
     private Consumer<Vector2d> onClick;
 
+    public void clearAnimals2(Collection<Animal> animals) {
+        animals.forEach(animal -> clearEntity(animal.getPosition()));
+    }
+
+    public void drawAnimals2(Collection<Animal> animals) {
+        animals.forEach(this::redrawAnimal);
+    }
+
+    public void drawPlants2(Collection<Plant> plants) {
+        plants.forEach(this::drawPlant);
+    }
+
     public void redrawFields(Pair<Vector2d, Vector2d> mapBorders, Pair<Vector2d, Vector2d> jungleBorders) {
         int mapWidth = mapBorders.second.x + 1;
         int mapHeight = mapBorders.second.y + 1;
@@ -62,7 +74,6 @@ public class MapController implements Controller {
     }
 
     public void drawTrackedAnimal(Animal animal) {
-        clearEntity(animal.getPosition());
         drawAnimal(animal);
 
         entitiesCtx.save();
@@ -78,8 +89,8 @@ public class MapController implements Controller {
         entitiesCtx.restore();
     }
 
-    public void drawAnimalsWithMostCommonGenes(Collection<Animal> animals) {
-        animals.forEach(this::drawAnimalWithMostCommonGenes);
+    public void redrawAnimalsWithMostCommonGenes(Collection<Animal> animals) {
+        animals.forEach(this::redrawAnimalWithMostCommonGenes);
     }
 
     public void redrawAnimal(Animal animal) {
@@ -87,7 +98,7 @@ public class MapController implements Controller {
         drawAnimal(animal);
     }
 
-    private void drawAnimalWithMostCommonGenes(Animal animal) {
+    private void redrawAnimalWithMostCommonGenes(Animal animal) {
         clearEntity(animal.getPosition());
         drawAnimal(animal);
 
@@ -125,14 +136,6 @@ public class MapController implements Controller {
         fields.setHeight(height);
         entities.setWidth(width);
         entities.setHeight(height);
-
-        System.out.println(width);
-    }
-
-    @Override
-    public void reset() {
-        clearFields();
-        clearEntities();
     }
 
     private void setFieldSide(double mapWidth, double mapHeight) {
@@ -219,6 +222,12 @@ public class MapController implements Controller {
 
     private void clearEntities() {
         entitiesCtx.clearRect(0, 0, entities.getWidth(), entities.getHeight());
+    }
+
+    @Override
+    public void reset() {
+        clearFields();
+        clearEntities();
     }
 
     @Override

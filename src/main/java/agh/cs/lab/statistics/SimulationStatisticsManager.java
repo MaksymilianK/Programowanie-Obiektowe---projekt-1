@@ -91,7 +91,7 @@ public class SimulationStatisticsManager implements AnimalObserver, PlantObserve
         livingAnimals--;
         deadAnimals++;
         livingAnimalEnergy -= animal.getEnergy();
-        deadAnimalsEpochLived = animal.getLengthOfLife();
+        deadAnimalsEpochLived += animal.getLengthOfLife();
     }
 
     @Override
@@ -166,5 +166,8 @@ public class SimulationStatisticsManager implements AnimalObserver, PlantObserve
         genesCounter.add(animal.getGene());
         livingAnimals++;
         livingAnimalEnergy += animal.getEnergy();
+    }
+
+    public void save() {
     }
 }

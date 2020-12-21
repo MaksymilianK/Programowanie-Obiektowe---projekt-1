@@ -6,7 +6,6 @@ import javafx.scene.control.Button;
 import javafx.scene.control.TextField;
 import javafx.scene.text.Text;
 
-import java.awt.*;
 import java.util.function.Consumer;
 
 public class AnimalDetailsController implements Controller {
@@ -18,7 +17,7 @@ public class AnimalDetailsController implements Controller {
     private TextField epoch;
 
     @FXML
-    private Button checkButton;
+    private Button startButton;
 
     @FXML
     private Text children;
@@ -30,50 +29,69 @@ public class AnimalDetailsController implements Controller {
     private Text deathEpoch;
 
     @FXML
-    private Button finishButton;
+    private Button interruptButton;
 
-    public void onCheck(Consumer<Integer> onCheck) {
-        checkButton.setOnAction(event -> {
+    private int getEpoch() {
+        int epoch = Integer.parseInt(this.epoch.getText());
+        if (epoch < 1) {
+            throw new NumberFormatException("An epoch cannot be a negative number");
+        }
+        return epoch;
+    }
+
+    public void onStart(Consumer<Integer> onStart) {
+        startButton.setOnAction(event -> {
             try {
-                int epoch = Integer.parseInt(this.epoch.getText());
-                if (epoch < 0) {
-                    this.epoch.setText("!");
-                } else {
-                    onCheck.accept(epoch);
-                }
+                onStart.accept(getEpoch());
             } catch (NumberFormatException e) {
-                epoch.setText("!");
+                epoch.setText("Niepoprawna epoka");
             }
         });
     }
 
-    public void onFinish(Runnable onFinish) {
-        finishButton.setOnAction(event -> onFinish.run());
+    public void setRunning(boolean isRunning) {
+        if (epoch.getText().equals("")) {
+            startButton.setDisable(isRunning);
+        }
+        interruptButton.setDisable(isRunning);
     }
 
-    public void makeActive(Gene gene) {
+    public void onInterrupt(Runnable onInterrupt) {
+        this.interruptButton.setOnAction(event -> onInterrupt.run());
+    }
+
+    public void notifySelected(Gene gene) {
         this.gene.setText(gene.toString());
+        epoch.setDisable(false);
+        startButton.setDisable(false);
+        interruptButton.setDisable(false);
 
-        checkButton.setDisable(false);
-        finishButton.setDisable(false);
+        deathEpoch.setText("Zyje");
     }
 
-    public void update(int children, int descendants) {
-        if (children == -1) {
-            this.children.setText("-");
-        } else {
-            this.children.setText(Integer.toString(children));
-        }
+    public void notifyTrackingStarted() {
+        epoch.setDisable(true);
+        startButton.setDisable(true);
+        interruptButton.setDisable(false);
 
-        if (descendants == -1) {
-            this.descendants.setText("-");
-        } else {
-            this.descendants.setText(Integer.toString(descendants));
-        }
+        children.setText("-");
+        descendants.setText("-");
     }
 
-    public void onAnimalDeath(int deathEpoch) {
-        this.deathEpoch.setText(Integer.toString(deathEpoch));
+    public void notifyDead(int epochDied) {
+        deathEpoch.setText(Integer.toString(epochDied));
+    }
+
+    public void notifyTrackingInterrupted() {
+        reset();
+    }
+
+    public void notifyTrackingFinished(int children, int descendants) {
+        this.children.setText(Integer.toString(children));
+        this.descendants.setText(Integer.toString(descendants));
+        epoch.setText("");
+        epoch.setDisable(false);
+        startButton.setDisable(false);
     }
 
     @Override
@@ -83,11 +101,12 @@ public class AnimalDetailsController implements Controller {
 
     @Override
     public void reset() {
-        checkButton.setDisable(true);
-        finishButton.setDisable(true);
+        epoch.setDisable(true);
+        startButton.setDisable(true);
+        interruptButton.setDisable(true);
 
         gene.setText("-");
-        epoch.setText("-");
+        epoch.setText("");
         children.setText("-");
         descendants.setText("-");
         deathEpoch.setText("-");

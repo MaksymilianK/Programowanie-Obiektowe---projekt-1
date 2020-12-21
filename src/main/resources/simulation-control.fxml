@@ -21,13 +21,4 @@
             GridPane.rowIndex="2" GridPane.columnIndex="0" GridPane.halignment="CENTER"/>
     <Button fx:id="pauseButton" text="Stop"
             GridPane.rowIndex="2" GridPane.columnIndex="1" GridPane.halignment="CENTER"/>
-    <Button fx:id="finishButton" text="Zakończ"
-            GridPane.rowIndex="3" GridPane.columnIndex="0" GridPane.rowSpan="1" GridPane.columnSpan="2"
-            GridPane.halignment="CENTER"/>
-    <Button fx:id="mostCommonGenesButton" text="Najczęstszy gen"
-            GridPane.rowIndex="4" GridPane.columnIndex="0" GridPane.rowSpan="1" GridPane.columnSpan="2"
-            GridPane.halignment="CENTER"/>
-    <Button fx:id="statisticsButton" text="Zapisz statystyki"
-            GridPane.rowIndex="5" GridPane.columnIndex="0" GridPane.rowSpan="1" GridPane.columnSpan="2"
-            GridPane.halignment="CENTER"/>
 </GridPane>

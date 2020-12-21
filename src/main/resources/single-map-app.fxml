@@ -8,6 +8,7 @@
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Separator?>
 
+<?import javafx.scene.control.Button?>
 <GridPane xmlns:fx="http://javafx.com/fxml" fx:controller="agh.cs.lab.view.SingleMapAppController" fx:id="app">
     <ScrollPane fx:id="mapContainer" GridPane.rowIndex="0" GridPane.columnIndex="0">
         <fx:include source="map.fxml" fx:id="map"/>
@@ -20,9 +21,11 @@
                 <Insets top="50" bottom="50" left="50" right="50"/>
             </padding>
 
+            <Button fx:id="menuButton" text="Powrót do menu"/>
+            <Separator/>
             <fx:include source="simulation-control.fxml" fx:id="control"/>
             <Separator/>
-            <fx:include source="v-simulation-statistics.fxml" fx:id="statistics"/>
+            <fx:include source="simulation-statistics.fxml" fx:id="statistics"/>
             <Separator/>
             <fx:include source="selected-animal-details.fxml" fx:id="animalDetails"/>
         </VBox>

@@ -26,17 +26,18 @@
     <Label GridPane.rowIndex="3" GridPane.columnIndex="0" GridPane.rowSpan="1" GridPane.columnSpan="2">
         Po n-tej epoce
     </Label>
-    <TextField fx:id="epoch" GridPane.rowIndex="4" GridPane.columnIndex="0"/>
-    <Button fx:id="checkButton" text="Sprawdź" GridPane.rowIndex="4" GridPane.columnIndex="1"/>
+    <TextField fx:id="epoch" GridPane.rowIndex="4" GridPane.columnIndex="0" GridPane.rowSpan="1" GridPane.columnSpan="2"/>
+    <Button fx:id="startButton" text="Start" GridPane.rowIndex="5" GridPane.columnIndex="0"
+            GridPane.rowSpan="1" GridPane.columnSpan="2"  GridPane.halignment="CENTER"/>
+    <Button fx:id="interruptButton" text="Przerwij śledzenie" GridPane.rowIndex="6" GridPane.columnIndex="0"
+            GridPane.rowSpan="1" GridPane.columnSpan="2"  GridPane.halignment="CENTER"/>
 
-    <Label GridPane.rowIndex="5" GridPane.columnIndex="0">Dzieci</Label>
-    <Text fx:id="children" GridPane.rowIndex="5" GridPane.columnIndex="1"></Text>
+    <Label GridPane.rowIndex="7" GridPane.columnIndex="0">Dzieci</Label>
+    <Text fx:id="children" GridPane.rowIndex="7" GridPane.columnIndex="1"></Text>
 
-    <Label GridPane.rowIndex="6" GridPane.columnIndex="0">Potomków</Label>
-    <Text fx:id="descendants" GridPane.rowIndex="6" GridPane.columnIndex="1"></Text>
+    <Label GridPane.rowIndex="8" GridPane.columnIndex="0">Potomków</Label>
+    <Text fx:id="descendants" GridPane.rowIndex="8" GridPane.columnIndex="1"></Text>
 
-    <Label GridPane.rowIndex="7" GridPane.columnIndex="0">Zmarło w</Label>
-    <Text fx:id="deathEpoch" GridPane.rowIndex="7" GridPane.columnIndex="1"></Text>
-
-    <Button fx:id="finishButton" text="Zakończ śledzenie" GridPane.rowIndex="8" GridPane.columnIndex="0"/>
+    <Label GridPane.rowIndex="9" GridPane.columnIndex="0">Zmarło w</Label>
+    <Text fx:id="deathEpoch" GridPane.rowIndex="9" GridPane.columnIndex="1"></Text>
 </GridPane>

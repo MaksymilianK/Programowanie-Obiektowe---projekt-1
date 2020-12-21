@@ -2,6 +2,7 @@ package agh.cs.lab.view;
 
 import javafx.fxml.FXML;
 import javafx.scene.Parent;
+import javafx.scene.control.Button;
 import javafx.scene.control.ScrollPane;
 
 public class DoubleMapAppController extends PrimaryController {
@@ -28,6 +29,9 @@ public class DoubleMapAppController extends PrimaryController {
     private AnimalDetailsController firstAnimalDetailsController;
 
     @FXML
+    private Button menuButton;
+
+    @FXML
     private MapController secondMapController;
 
     @FXML
@@ -38,6 +42,10 @@ public class DoubleMapAppController extends PrimaryController {
 
     @FXML
     private AnimalDetailsController secondAnimalDetailsController;
+
+    public void onMenu(Runnable onMenu) {
+        menuButton.setOnAction(event -> onMenu.run());
+    }
 
     public MapController getFirstMapController() {
         return firstMapController;

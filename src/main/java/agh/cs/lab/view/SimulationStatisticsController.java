@@ -3,17 +3,20 @@ package agh.cs.lab.view;
 import agh.cs.lab.element.animal.Gene;
 import agh.cs.lab.shared.Pair;
 import javafx.fxml.FXML;
+import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 public class SimulationStatisticsController implements Controller {
 
     public static final int MOST_COMMON_GENES_MAX = 3;
+
+    @FXML
+    private Text currentEpoch;
 
     @FXML
     private Text livingAnimals;
@@ -32,6 +35,24 @@ public class SimulationStatisticsController implements Controller {
 
     @FXML
     private Text averageChildren;
+
+    @FXML
+    private Button mostCommonGenesButton;
+
+    @FXML
+    private Button saveButton;
+
+    public void setCurrentEpoch(int currentEpoch) {
+        this.currentEpoch.setText(Integer.toString(currentEpoch));
+    }
+
+    public void onMostCommonGenes(Runnable onMostCommonGenes) {
+        mostCommonGenesButton.setOnAction(event -> onMostCommonGenes.run());
+    }
+
+    public void onSave(Runnable onSave) {
+        saveButton.setOnAction(event -> onSave.run());
+    }
 
     public void setLivingAnimals(int livingAnimals) {
         this.livingAnimals.setText(Integer.toString(livingAnimals));
@@ -65,8 +86,16 @@ public class SimulationStatisticsController implements Controller {
         this.averageChildren.setText(Float.toString(averageChildren));
     }
 
+    public void setRunning(boolean isRunning) {
+        mostCommonGenesButton.setDisable(isRunning);
+        saveButton.setDisable(isRunning);
+    }
+
     @Override
     public void reset() {
+        setRunning(false);
+
+        currentEpoch.setText("0");
         livingAnimals.setText("0");
         livingPlants.setText("0");
         mostCommonGenes.getChildren().clear();

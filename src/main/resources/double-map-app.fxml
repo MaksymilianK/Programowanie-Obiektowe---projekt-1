@@ -8,12 +8,15 @@
 <?import javafx.scene.layout.HBox?>
 <?import javafx.geometry.Insets?>
 
+<?import javafx.scene.control.Button?>
 <GridPane xmlns:fx="http://javafx.com/fxml" fx:controller="agh.cs.lab.view.DoubleMapAppController" fx:id="app">
-    <ScrollPane fx:id="firstMapContainer" GridPane.rowIndex="0" GridPane.columnIndex="0">
+    <ScrollPane fx:id="firstMapContainer" GridPane.rowIndex="0" GridPane.columnIndex="0"
+                GridPane.rowSpan="1" GridPane.columnSpan="2">
         <fx:include source="map.fxml" fx:id="firstMap"/>
     </ScrollPane>
 
-    <ScrollPane fx:id="secondMapContainer" GridPane.rowIndex="0" GridPane.columnIndex="1">
+    <ScrollPane fx:id="secondMapContainer" GridPane.rowIndex="0" GridPane.columnIndex="2"
+                GridPane.rowSpan="1" GridPane.columnSpan="2">
         <fx:include source="map.fxml" fx:id="secondMap"/>
     </ScrollPane>
 
@@ -25,13 +28,16 @@
 
             <fx:include source="simulation-control.fxml" fx:id="firstControl"/>
             <Separator/>
-            <fx:include source="v-simulation-statistics.fxml" fx:id="firstStatistics"/>
+            <fx:include source="simulation-statistics.fxml" fx:id="firstStatistics"/>
             <Separator/>
             <fx:include source="selected-animal-details.fxml" fx:id="firstAnimalDetails"/>
         </HBox>
     </ScrollPane>
 
-    <ScrollPane GridPane.rowIndex="1" GridPane.columnIndex="1">
+    <Button fx:id="menuButton" text="Powrót do menu" GridPane.rowIndex="1" GridPane.columnIndex="1"
+            GridPane.rowSpan="1" GridPane.columnSpan="2" GridPane.halignment="CENTER"/>
+
+    <ScrollPane GridPane.rowIndex="1" GridPane.columnIndex="3">
         <HBox spacing="50">
             <padding>
                 <Insets top="50" bottom="50" left="50" right="50"/>
@@ -39,15 +45,17 @@
 
             <fx:include source="simulation-control.fxml" fx:id="secondControl"/>
             <Separator/>
-            <fx:include source="v-simulation-statistics.fxml" fx:id="secondStatistics"/>
+            <fx:include source="simulation-statistics.fxml" fx:id="secondStatistics"/>
             <Separator/>
             <fx:include source="selected-animal-details.fxml" fx:id="secondAnimalDetails"/>
         </HBox>
     </ScrollPane>
 
     <columnConstraints>
-        <ColumnConstraints percentWidth="50"/>
-        <ColumnConstraints percentWidth="50"/>
+        <ColumnConstraints percentWidth="45"/>
+        <ColumnConstraints percentWidth="5"/>
+        <ColumnConstraints percentWidth="5"/>
+        <ColumnConstraints percentWidth="45"/>
     </columnConstraints>
     <rowConstraints>
         <RowConstraints percentHeight="75"/>

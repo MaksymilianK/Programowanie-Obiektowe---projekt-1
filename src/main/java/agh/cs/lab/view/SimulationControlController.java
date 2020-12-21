@@ -18,22 +18,10 @@ public class SimulationControlController implements Controller {
     @FXML
     private Button pauseButton;
 
-    @FXML
-    private Button finishButton;
-
-    @FXML
-    private Button mostCommonGenesButton;
-
-    @FXML
-    private Button statisticsButton;
-
     public void setRunning(boolean isRunning) {
         speed.setDisable(isRunning);
         resumeButton.setDisable(isRunning);
         pauseButton.setDisable(!isRunning);
-        finishButton.setDisable(isRunning);
-        mostCommonGenesButton.setDisable(isRunning);
-        statisticsButton.setDisable(isRunning);
     }
 
     public void onResume(Consumer<Double> onResume) {
@@ -42,18 +30,6 @@ public class SimulationControlController implements Controller {
 
     public void onPause(Runnable onPause) {
         pauseButton.setOnAction(event -> onPause.run());
-    }
-
-    public void onFinish(Runnable onFinish) {
-        finishButton.setOnAction(event -> onFinish.run());
-    }
-
-    public void onMostCommonGenes(Runnable onMostCommonGenes) {
-        mostCommonGenesButton.setOnAction(event -> onMostCommonGenes.run());
-    }
-
-    public void onStatistics(Runnable onStatistics) {
-        statisticsButton.setOnAction(event -> onStatistics.run());
     }
 
     @Override
