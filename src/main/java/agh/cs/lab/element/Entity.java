@@ -14,7 +14,7 @@ public abstract class Entity {
         this.id = id;
     }
 
-    public abstract Vector2d getPosition();
+    public abstract Vector2d getPosition(); // a tego nie można było tu zaimplementować?
 
     public int getId() {
         return id;

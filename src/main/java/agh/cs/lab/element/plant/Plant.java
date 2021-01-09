@@ -24,7 +24,7 @@ public class Plant extends Entity {
         observers.remove(observer);
     }
 
-    public void eat() {
+    public void eat() { // czy roślina je?
         observers.forEach(obs -> obs.onPlantEaten(this));
     }
 

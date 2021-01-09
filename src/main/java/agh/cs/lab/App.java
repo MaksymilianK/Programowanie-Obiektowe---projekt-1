@@ -1,5 +1,5 @@
 package agh.cs.lab;
-
+// resources nie powinny być w src
 import agh.cs.lab.engine.SimulationSettings;
 import agh.cs.lab.runner.AppRunner;
 import agh.cs.lab.shared.Rand;

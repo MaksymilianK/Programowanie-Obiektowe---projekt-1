@@ -12,7 +12,7 @@ public final class Vector2d {
         this.y = y;
     }
 
-    public Vector2d withX(int x) {
+    public Vector2d withX(int x) {  // trochę nieczytelne
         return new Vector2d(x, y);
     }
 

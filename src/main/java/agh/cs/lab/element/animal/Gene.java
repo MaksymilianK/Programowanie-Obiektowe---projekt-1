@@ -9,7 +9,7 @@ public class Gene {
     private final List<Integer> sequence;
     private final String stringRepresentation;
 
-    Gene(List<Integer> sequence, String stringRepresentation) {
+    Gene(List<Integer> sequence, String stringRepresentation) { // a kto dba o to, żeby stringRepresentation się zgadzało z sequence? I o poprawność sequence?
         this.sequence = Collections.unmodifiableList(sequence);
         this.stringRepresentation = stringRepresentation;
     }

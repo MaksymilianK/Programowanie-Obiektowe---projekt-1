@@ -33,7 +33,7 @@ public class Animal extends Entity {
         observers.remove(observer);
     }
 
-    public void kill() {
+    public void kill() {    // jak energia zwierzęciu spadnie poniżej 0, to zwierzę nadal żyje, dopóki ktoś mu nie powie, że nie powinno?
         observers.forEach(obs -> obs.onAnimalDead(this));
     }
 
@@ -90,7 +90,7 @@ public class Animal extends Entity {
     }
 
     public static Animal giveBirth(int id, Vector2d position, Gene genes, Direction orientation, int energy,
-                                   Animal parent1, Animal parent2, Collection<AnimalObserver> observers) {
+                                   Animal parent1, Animal parent2, Collection<AnimalObserver> observers) {  // dużo parametrów
         var animal = new Animal(id, position, genes, orientation, energy);
 
         observers.forEach(obs -> {
